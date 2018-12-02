@@ -49,24 +49,12 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          {/* <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a> */}
           <ul id="messages" />
           <p>{this.state.response ? this.state.response : "no msgs"}</p>
 
           <form action="" onSubmit={this.handleSubmit}>
             <input id="m" onChange={this.handleChange} />
-            {/* <button >Send</button> */}
+            <button >Send</button>
           </form>
         </header>
       </div>
