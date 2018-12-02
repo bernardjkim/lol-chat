@@ -4,6 +4,7 @@ var io = require("socket.io")(http);
 var port = process.env.PORT || 3001;
 
 app.get("/", function(req, res) {
+  console.log(req.originalUrl);
   res.sendFile(__dirname + "/index.html");
 });
 
@@ -12,7 +13,7 @@ io.on("connection", function(socket) {
   io.emit("chat message", welcome + socket.id);
 
   socket.on("chat message", function(msg) {
-    console.log("received msg");
+    console.log("received msg " + msg);
     io.emit("chat message", msg);
   });
 });
