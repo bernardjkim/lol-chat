@@ -1,6 +1,5 @@
 import React from "react";
-
-import socket from "./socket";
+import socket from "../socket";
 
 class Chatroom extends React.Component {
   constructor(props) {
@@ -13,7 +12,6 @@ class Chatroom extends React.Component {
   }
 
   componentDidMount() {
-    this.setState({ messages: [] });
     this.state.client.registerHandler(this.onMessageReceived);
   }
 
@@ -39,15 +37,16 @@ class Chatroom extends React.Component {
 
   render() {
     return (
-      <div>
-        <ul id="messages" />
+      <div id='chat-box'>
+        <ul id="messages" >
         {this.state.messages.map((msg, key) => (
           <li key={key}>{msg}</li>
         ))}
+        </ul>
 
-        <form action="" onSubmit={this.handleSubmit}>
-          <input id="m" onChange={this.handleChange} value={this.state.msg} />
-          <button>Send</button>
+        <form className='form-container' onSubmit={this.handleSubmit}>
+          <input id="message-bar" onChange={this.handleChange} value={this.state.msg} />
+          <button id='send-button'>Send</button>
         </form>
       </div>
     );

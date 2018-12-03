@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import "./App.css";
+import "./stylesheet/App.css";
+import './stylesheet/index.scss';
 
-import Chatroom from "./Chatroom";
+import Chatroom from "./Component/Chatroom.js";
 
 class App extends Component {
   render() {
