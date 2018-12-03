@@ -1,6 +1,9 @@
-var http = require("http").Server();
-var io = require("socket.io")(http);
+var app = require('http').createServer();
+// Export Io 
+var io = module.exports.io = require('socket.io')(app)
 var port = process.env.PORT || 3001;
+
+const serverManager = require('./serverManager')
 
 io.on("connection", function(client) {
   console.log("client connected: ", client.id);
@@ -15,6 +18,8 @@ io.on("connection", function(client) {
   });
 });
 
-http.listen(port, function() {
+app.listen(port, function() {
   console.log("listening on *:" + port);
 });
+
+
