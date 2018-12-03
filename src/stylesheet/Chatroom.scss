@@ -1,0 +1,42 @@
+$message-width: 1200px;
+
+#messages  {
+    margin:0;
+    width: $message-width;
+    height: 500px;
+    overflow: auto;
+    list-style-type: none;
+    background: url('https://vignette.wikia.nocookie.net/leagueoflegends/images/0/0a/Pyke_Promo_01.png/revision/latest/scale-to-width-down/640?cb=20180515033457');
+    background-size: cover;
+    color: black;
+    li {
+        color: white;
+        text-align: end;
+        margin: 3px;
+        margin-right: 10px;
+        font-weight: 500;
+    }
+}
+
+#message-bar {
+    width: $message-width - 100px;
+    font-weight: 500;
+    font-size: 30px;
+    height: 40px;
+}
+
+.form-container {
+    display: flex;
+    border: 2px solid #2D898B;
+
+}
+#send-button {
+    box-sizing: border-box;
+    background-color: #88CCF1;
+    padding: 10px;
+    width: 130px;
+    height: 46px;
+    font-size: 20px;
+    font-weight: 400;
+    color: white;
+}

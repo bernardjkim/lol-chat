@@ -1,20 +1,14 @@
-var http = require("http").Server();
-var io = require("socket.io")(http);
+var app = require('http').createServer();
+// Export Io 
+var io = module.exports.io = require('socket.io')(app)
 var port = process.env.PORT || 3001;
 
-io.on("connection", function(client) {
-  console.log("client connected: ", client.id);
+const serverManager = require('./serverManager')
 
-  // send a welcome message to the new client
-  const welcome = "Welcome to lol-chat " + client.id;
-  client.emit("message", welcome);
+io.on('connection', serverManager);
 
-  // broadcast any messages back to all connected clients
-  client.on("message", function(msg) {
-    io.emit("message", msg);
-  });
-});
-
-http.listen(port, function() {
+app.listen(port, function() {
   console.log("listening on *:" + port);
 });
+
+
