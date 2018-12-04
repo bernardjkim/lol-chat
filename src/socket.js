@@ -1,7 +1,7 @@
 import io from "socket.io-client";
 
 export default function() {
-  const socket = io("http://localhost:3001");
+  const socket = io("http://localhost:3000");
 
   function registerHandler(onMessageReceived) {
     socket.on("message", onMessageReceived);
