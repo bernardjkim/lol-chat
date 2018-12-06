@@ -21,11 +21,12 @@ class UsernameForm extends React.Component {
     render() {
         return (
             <div>
-                <form onSubmit={this.handleSubmit.bind(this)}>
+                <form onSubmit={this.handleSubmit.bind(this)} id='username-form'>
                         <input type='text' 
+                        id='username-input'
                         onChange={this.onChange.bind(this)}
                         value= {this.state.username}></input>
-                        <button>Set Username</button>
+                        <button>set username</button>
                 </form>
 
             </div>
