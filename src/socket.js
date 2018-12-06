@@ -8,7 +8,7 @@ export default function() {
   }
 
   function setUsername(username) {
-    socket.emit('set-username', username);
+    socket.emit("set-username", username);
   }
 
   function unregisterHandler() {
@@ -16,7 +16,7 @@ export default function() {
   }
 
   function message(msg) {
-    socket.emit("chat-message", msg);
+    socket.emit("chat-message", { chatroomName: "default", msg });
   }
   return {
     registerHandler,
