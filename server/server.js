@@ -7,9 +7,12 @@ module.exports = function(server) {
   io.on("connection", client => {
     console.log("client connected: ", client.id);
 
-    client.on("message", msg => {
-      console.log("recieved msg: ", msg);
-      io.emit("message", msg);
+    client.on("set-username", username => {
+      client.nickname = username;
+    });
+
+    client.on("chat-message", msg => {
+      io.emit("message", { username: client.username, msg: msg });
     });
   });
 };
