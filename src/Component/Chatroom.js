@@ -57,6 +57,11 @@ class Chatroom extends React.Component {
     this.setState({ msg: "" });
   };
 
+  setUsername(username) {
+    this.setState({username});
+    this.state.client.message(`'${username}' has joined the channel!`)
+  }
+
   handleChange = e => {
     this.setState({ msg: e.target.value });
   };
@@ -78,7 +83,7 @@ class Chatroom extends React.Component {
           isOpen={this.state.modalOpen}
           style={modalStyle}
           contentLabel="Username Modal">
-          <UsernameForm  closeModal = {this.closeUsernameModal.bind(this)} socket = {this.state.client}/>
+          <UsernameForm  setUsername={this.setUsername.bind(this)} closeModal = {this.closeUsernameModal.bind(this)} socket = {this.state.client}/>
         </Modal>
       </div>
     );
