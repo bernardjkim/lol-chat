@@ -4,7 +4,11 @@ export default function() {
   const socket = io();
 
   function registerHandler(onMessageReceived) {
-    socket.on("message", onMessageReceived);
+    socket.on("chat-message", onMessageReceived);
+  }
+
+  function setUsername(username) {
+    socket.emit('set-username', username);
   }
 
   function unregisterHandler() {
@@ -17,6 +21,7 @@ export default function() {
   return {
     registerHandler,
     unregisterHandler,
-    message
+    message,
+    setUsername
   };
 }
