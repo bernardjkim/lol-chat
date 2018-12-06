@@ -76,7 +76,6 @@ class Chatroom extends React.Component {
         </form>
         <Modal          
           isOpen={this.state.modalOpen}
-          onRequestClose={this.closeUsernameModal}
           style={modalStyle}
           contentLabel="Username Modal">
           <UsernameForm  closeModal = {this.closeUsernameModal.bind(this)} socket = {this.state.client}/>

@@ -12,11 +12,11 @@ export default function() {
   }
 
   function unregisterHandler() {
-    socket.off("message");
+    socket.off("chat-message");
   }
 
   function message(msg) {
-    socket.emit("message", msg);
+    socket.emit("chat-message", msg);
   }
   return {
     registerHandler,
