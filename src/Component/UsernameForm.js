@@ -4,7 +4,8 @@ class UsernameForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            username: ''
+            username: '',
+            errors: null
         }
     } 
 
@@ -14,13 +15,23 @@ class UsernameForm extends React.Component {
 
     handleSubmit(e) {
         e.preventDefault();
-        this.props.closeModal();
-        this.props.socket.setUsername(this.state.username);
+        let username = this.state.username
+        if (username.length > 1 && username.length < 20) {
+            this.props.closeModal();
+            this.errors = null;
+            this.props.setUsername(this.state.username);
+            this.props.socket.setUsername(this.state.username);
+        } else {
+            this.setState({ errors: "Username Should be 2 to 19 characters !"
+            })
+        }
     }
 
     render() {
+        let errors = this.state.errors;
         return (
             <div>
+                {errors}
                 <form onSubmit={this.handleSubmit.bind(this)} id='username-form'>
                         <input type='text' 
                         id='username-input'
