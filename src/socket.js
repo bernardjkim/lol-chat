@@ -8,7 +8,11 @@ export default function() {
   }
 
   function setUsername(username) {
+<<<<<<< HEAD
     socket.emit("register", username, function(){});
+=======
+    socket.emit("register", username);
+>>>>>>> a8bd4ac0a7e4ce31b7c71bc193c348c93e03cfec
   }
 
   function unregisterHandler() {

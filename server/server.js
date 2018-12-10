@@ -36,14 +36,6 @@ module.exports = function(server) {
 
     client.on("availableUsers", handleGetAvailableUsers);
 
-    // client.on("chat-message", msg => {
-    //   io.emit("chat-message", {
-    //     timestamp: new Date().getTime(),
-    //     username: client.nickname,
-    //     msg: msg
-    //   });
-    // });
-
     client.on("disconnect", function() {
       console.log("client disconnect...", client.id);
       handleDisconnect();
