@@ -10,6 +10,8 @@ $message-width: 1200px;
     background-size: cover;
     color: black;
     li {
+        word-wrap: break-word;
+        max-width: 1240px;
         color: white;
         text-align: end;
         margin: 3px;

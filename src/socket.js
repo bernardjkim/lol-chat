@@ -8,7 +8,7 @@ export default function() {
   }
 
   function setUsername(username) {
-    socket.emit("set-username", username);
+    socket.emit("register", username, function(){});
   }
 
   function unregisterHandler() {

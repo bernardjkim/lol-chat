@@ -19,7 +19,7 @@ module.exports = function() {
   }
 
   function isUserAvailable(username) {
-    return getAvailableUsers().some(u => u.nickname === username);
+    return getAvailableUsers().some(u => u.username === username);
   }
 
   function getUserByName(username) {
