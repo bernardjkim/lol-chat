@@ -29,15 +29,10 @@ module.exports = function(server) {
       handleDisconnect
     } = makeHandlers(client, clientManager, chatroomManager);
     console.log("client connected: ", client.id);
-<<<<<<< HEAD
 
     var randomNum = Math.floor(Math.random() * 6);
     handleRegister(names[randomNum]);
     handleJoin("default");
-=======
-    clientManager.registerClient(client, "TrollBot");
-    chatroomManager.getChatroomByName("default").addUser(client);
->>>>>>> 2f5a61ca5a55910c69f5c4fa0ad246849cfd8267
 
     client.on("register", handleRegister);
 
