@@ -23,6 +23,7 @@ class Chatroom extends React.Component {
     super(props);
     this.state = {
       client: false,
+      chatroom: "default",
       messages: [],
       username: "",
       msg: "",
@@ -35,13 +36,12 @@ class Chatroom extends React.Component {
   // append msg to list our list of messages
   onMessageReceived = ({ msg, username }) => {
     this.setState({
-      messages: [...this.state.messages, `${username}:  ${msg}`]
+      messages: [...this.state.messages, { username, msg }]
     });
   };
 
   // Close/ Open Modal for username
   closeUsernameModal() {
-    this.connectSocket();
     this.setState({ modalOpen: false });
   }
 
@@ -52,10 +52,22 @@ class Chatroom extends React.Component {
     // ignore if empty input
     if (this.state.msg === "") return;
 
-    this.state.client.message(this.state.msg);
+    if (this.state.msg.startsWith("/j")) {
+      var name = this.state.msg.split(" ")[1];
+      this.joinChatroom(name);
+      this.setState({ chatroom: name });
+    } else {
+      this.state.client.message(this.state.msg, this.state.chatroom);
+    }
     this.setState({ msg: "" });
   };
 
+  // join chatroom
+  joinChatroom = chatroomName => {
+    this.state.client.joinRoom(chatroomName);
+  };
+
+  // connect socket and set username
   setUsername(username) {
     // connect socket
     var client = socket();
@@ -63,7 +75,7 @@ class Chatroom extends React.Component {
 
     // set username
     client.setUsername(username);
-    this.setState({ client, username });
+    this.setState({ client, username, chatroom: "default" });
   }
 
   handleChange = e => {
@@ -73,11 +85,11 @@ class Chatroom extends React.Component {
   render() {
     return (
       <div id="chat-box">
+        <p>{this.state.chatroom}</p>
         <div id="messages">
           {this.state.messages.map((msg, key) => {
-            const index = msg.indexOf(":");
-            const username = msg.slice(0, index);
-            const message = msg.slice(index + 1);
+            const username = msg.username;
+            const message = msg.msg;
             const yourUsername =
               this.state.username === username
                 ? "your-username"

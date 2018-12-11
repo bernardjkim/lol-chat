@@ -23,6 +23,7 @@ module.exports = function() {
   }
 
   return {
+    createChatroom,
     removeClient,
     getChatroomByName,
     serializeChatrooms
