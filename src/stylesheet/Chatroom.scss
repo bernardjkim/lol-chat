@@ -9,9 +9,10 @@ $message-width: 1200px;
     background: url('https://vignette.wikia.nocookie.net/leagueoflegends/images/0/0a/Pyke_Promo_01.png/revision/latest/scale-to-width-down/640?cb=20180515033457');
     background-size: cover;
     color: black;
-    li {
+    div {
+        word-wrap: break-word;
+        max-width: 1060px;
         color: white;
-        text-align: end;
         margin: 3px;
         margin-right: 10px;
         font-weight: 500;
@@ -39,4 +40,20 @@ $message-width: 1200px;
     font-size: 20px;
     font-weight: 400;
     color: white;
+}
+
+.your-username {
+    color:rebeccapurple !important;
+    margin: 10px;
+}
+.other-username {
+    color: yellow !important;
+    margin: 10px;
+}
+
+
+.message-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
 }

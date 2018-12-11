@@ -67,12 +67,34 @@ class Chatroom extends React.Component {
 
   render() {
     return (
+<<<<<<< HEAD
       <div id="chat-box">
         <ul id="messages">
           {this.state.messages.map((msg, key) => (
             <li key={key}>{msg}</li>
           ))}
         </ul>
+=======
+      <div id='chat-box'>
+        <div id="messages" >
+        {this.state.messages.map((msg, key) => {
+          const index = msg.indexOf(':');
+          const username = msg.slice(0,index);
+          const message = msg.slice(index+ 1);
+          const yourUsername = this.state.username === username ? 
+            'your-username' : 'other-username';
+
+
+         return ( 
+              <div key={key} className='message-container'>
+                <div className={yourUsername}>{username}</div>
+                <div className='message'>{message}</div>
+              </div>
+          );
+        })}
+          
+        </div>
+>>>>>>> 2f5a61ca5a55910c69f5c4fa0ad246849cfd8267
 
         <form className="form-container" onSubmit={this.handleSubmit}>
           <input
