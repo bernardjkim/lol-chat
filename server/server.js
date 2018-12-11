@@ -6,9 +6,17 @@ const ChatroomManager = require("./chatroomManager");
 const clientManager = ClientManager();
 const chatroomManager = ChatroomManager();
 
+const names = [
+  "Donald Trump",
+  "Barack Obama",
+  "George Bush",
+  "Bill Clinton",
+  "Ricard Nixon",
+  "Abraham Lincoln"
+];
+
 module.exports = function(server) {
   const io = socketIO.listen(server);
-  const date = new Date();
 
   io.on("connection", client => {
     const {
@@ -22,8 +30,10 @@ module.exports = function(server) {
     } = makeHandlers(client, clientManager, chatroomManager);
 
     console.log("client connected: ", client.id);
-    clientManager.registerClient(client, "UnknownAnonymous");
-    chatroomManager.getChatroomByName("default").addUser(client);
+
+    var randomNum = Math.floor(Math.random() * 6);
+    handleRegister(names[randomNum]);
+    handleJoin("default");
 
     client.on("register", handleRegister);
 
