@@ -3,8 +3,9 @@ import io from "socket.io-client";
 export default function() {
   const socket = io();
 
-  function registerHandler(onMessageReceived) {
+  function registerHandler(onMessageReceived, onMembersReceived) {
     socket.on("chat-message", onMessageReceived);
+    socket.on("members", onMembersReceived);
   }
 
   function setUsername(username) {
@@ -13,6 +14,7 @@ export default function() {
 
   function unregisterHandler() {
     socket.off("chat-message");
+    socket.off("members");
   }
 
   function message(msg, chatroomName) {

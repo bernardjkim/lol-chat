@@ -6,6 +6,17 @@ module.exports = function(client, clientManager, chatroomManager) {
       return callback("user is not available");
 
     clientManager.registerClient(client, username);
+    var chatroomName = clientManager.getUserByClientId(client.id).room;
+    var chatroom = chatroomManager.getChatroomByName(chatroomName);
+    if (chatroom) {
+      chatroom.addUser(client, username);
+      chatroom.broadcastMembers();
+    }
+
+    handleMessage({
+      chatroomName,
+      msg: `${username} has joined the chatroom`
+    });
 
     return callback(null, username);
   }
@@ -13,14 +24,21 @@ module.exports = function(client, clientManager, chatroomManager) {
   function handleJoin(chatroomName, callback = () => {}) {
     const createEntry = () => ({ event: `joined ${chatroomName}` });
 
+    var user = clientManager.getUserByClientId(client.id);
+
     if (!chatroomManager.getChatroomByName(chatroomName)) {
       chatroomManager.createChatroom(chatroomName);
     }
 
     handleEvent(chatroomName, createEntry)
       .then(function(chatroom) {
+        // leave previous chatrooom
+        chatroomManager.removeClient(client);
+        clientManager.joinRoom(client, chatroomName);
+
         // add member to chatroom
-        chatroom.addUser(client);
+        chatroom.addUser(user.client, user.username);
+        chatroom.broadcastMembers();
 
         // send chat history to client
         callback(null, chatroom.getChatHistory());
@@ -29,7 +47,7 @@ module.exports = function(client, clientManager, chatroomManager) {
 
     handleMessage({
       chatroomName,
-      msg: `${client.username} has joined the chatroom`
+      msg: `${user.username} has joined the chatroom`
     });
   }
 
@@ -47,8 +65,9 @@ module.exports = function(client, clientManager, chatroomManager) {
   }
 
   function handleMessage({ chatroomName, msg } = {}, callback = () => {}) {
+    console.log("handle message " + chatroomName + " " + msg);
     const createEntry = () => ({
-      username: clientManager.getUserByClientId(client.id),
+      username: clientManager.getUserByClientId(client.id).username,
       msg
     });
 
@@ -93,7 +112,7 @@ function makeHandleEvent(client, clientManager, chatroomManager) {
 
   function ensureUserSelected(clientId) {
     return ensureExists(
-      () => clientManager.getUserByClientId(clientId),
+      () => clientManager.getUserByClientId(clientId).username,
       "select user first"
     );
   }
