@@ -7,7 +7,21 @@ module.exports = function() {
   }
 
   function registerClient(client, username) {
-    clients.set(client.id, { client, username });
+    var user = getUserByClientId(client.id);
+    if (!user) {
+      clients.set(client.id, { client, username, room: "default" });
+    } else {
+      clients.set(client.id, { client, username, room: user.room });
+    }
+  }
+
+  function joinRoom(client, room) {
+    var user = getUserByClientId(client.id);
+    clients.set(client.id, {
+      client: user.client,
+      username: user.username,
+      room
+    });
   }
 
   function removeClient(client) {
@@ -27,12 +41,13 @@ module.exports = function() {
   }
 
   function getUserByClientId(clientId) {
-    return (clients.get(clientId) || {}).username;
+    return clients.get(clientId) || {};
   }
 
   return {
     addClient,
     registerClient,
+    joinRoom,
     removeClient,
     getAvailableUsers,
     isUserAvailable,

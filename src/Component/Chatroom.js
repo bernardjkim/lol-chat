@@ -24,6 +24,7 @@ class Chatroom extends React.Component {
     this.state = {
       client: false,
       chatroom: "default",
+      members: [],
       messages: [],
       username: "",
       msg: "",
@@ -40,6 +41,10 @@ class Chatroom extends React.Component {
     });
   };
 
+  onMembersReceived = members => {
+    this.setState({ members });
+  };
+
   // Close/ Open Modal for username
   closeUsernameModal() {
     this.setState({ modalOpen: false });
@@ -54,7 +59,7 @@ class Chatroom extends React.Component {
 
     if (this.state.msg.startsWith("/j")) {
       var name = this.state.msg.split(" ")[1];
-      this.joinChatroom(name);
+      this.state.client.joinRoom(name);
       this.setState({ chatroom: name });
     } else {
       this.state.client.message(this.state.msg, this.state.chatroom);
@@ -71,7 +76,7 @@ class Chatroom extends React.Component {
   setUsername(username) {
     // connect socket
     var client = socket();
-    client.registerHandler(this.onMessageReceived);
+    client.registerHandler(this.onMessageReceived, this.onMembersReceived);
 
     // set username
     client.setUsername(username);
@@ -86,6 +91,11 @@ class Chatroom extends React.Component {
     return (
       <div id="chat-box">
         <p>{this.state.chatroom}</p>
+        <ul>
+          {this.state.members.map((m, key) => (
+            <li key={key}>{m}</li>
+          ))}
+        </ul>
         <div id="messages">
           {this.state.messages.map((msg, key) => {
             const username = msg.username;

@@ -3,7 +3,16 @@ module.exports = function(name) {
   let chatHistory = [];
 
   function broadcastMessage(message) {
-    members.forEach(m => m.emit("chat-message", message));
+    members.forEach(m => m.client.emit("chat-message", message));
+  }
+
+  function broadcastMembers() {
+    var usernames = [];
+    members.forEach(m => {
+      usernames.push(m.username);
+    });
+
+    members.forEach(m => m.client.emit("members", usernames));
   }
 
   function addEntry(entry) {
@@ -14,8 +23,11 @@ module.exports = function(name) {
     return chatHistory.slice();
   }
 
-  function addUser(client) {
-    members.set(client.id, client);
+  function addUser(client, username) {
+    members.set(client.id, {
+      client: client,
+      username: username
+    });
   }
 
   function removeUser(client) {
@@ -31,6 +43,7 @@ module.exports = function(name) {
 
   return {
     broadcastMessage,
+    broadcastMembers,
     addEntry,
     getChatHistory,
     addUser,
