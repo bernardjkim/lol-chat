@@ -30,18 +30,7 @@ class Chatroom extends React.Component {
     };
   }
 
-  componentDidMount() {
-    console.log(this.state);
-    if (!this.state.client) {
-      this.connectSocket();
-    }
-  }
-
-  connectSocket = () => {
-    var client = socket();
-    client.registerHandler(this.onMessageReceived);
-    this.setState({ client: client });
-  };
+  componentDidMount() {}
 
   // append msg to list our list of messages
   onMessageReceived = ({ msg, username }) => {
@@ -52,6 +41,7 @@ class Chatroom extends React.Component {
 
   // Close/ Open Modal for username
   closeUsernameModal() {
+    this.connectSocket();
     this.setState({ modalOpen: false });
   }
 
@@ -67,7 +57,13 @@ class Chatroom extends React.Component {
   };
 
   setUsername(username) {
-    this.setState({ username });
+    // connect socket
+    var client = socket();
+    client.registerHandler(this.onMessageReceived);
+
+    // set username
+    client.setUsername(username);
+    this.setState({ client, username });
   }
 
   handleChange = e => {
@@ -112,7 +108,6 @@ class Chatroom extends React.Component {
           <UsernameForm
             setUsername={this.setUsername.bind(this)}
             closeModal={this.closeUsernameModal.bind(this)}
-            socket={this.state.client}
           />
         </Modal>
       </div>
