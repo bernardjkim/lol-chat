@@ -22,7 +22,7 @@ class Chatroom extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      client: socket(),
+      client: false,
       messages: [],
       username: "",
       msg: "",
@@ -31,8 +31,17 @@ class Chatroom extends React.Component {
   }
 
   componentDidMount() {
-    this.state.client.registerHandler(this.onMessageReceived);
+    console.log(this.state);
+    if (!this.state.client) {
+      this.connectSocket();
+    }
   }
+
+  connectSocket = () => {
+    var client = socket();
+    client.registerHandler(this.onMessageReceived);
+    this.setState({ client: client });
+  };
 
   // append msg to list our list of messages
   onMessageReceived = ({ msg, username }) => {
