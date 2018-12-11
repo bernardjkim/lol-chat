@@ -13,6 +13,10 @@ module.exports = function(client, clientManager, chatroomManager) {
   function handleJoin(chatroomName, callback = () => {}) {
     const createEntry = () => ({ event: `joined ${chatroomName}` });
 
+    if (!chatroomManager.getChatroomByName(chatroomName)) {
+      chatroomManager.createChatroom(chatroomName);
+    }
+
     handleEvent(chatroomName, createEntry)
       .then(function(chatroom) {
         // add member to chatroom
@@ -22,6 +26,11 @@ module.exports = function(client, clientManager, chatroomManager) {
         callback(null, chatroom.getChatHistory());
       })
       .catch(callback);
+
+    handleMessage({
+      chatroomName,
+      msg: `${client.username} has joined the chatroom`
+    });
   }
 
   function handleLeave(chatroomName, callback = () => {}) {

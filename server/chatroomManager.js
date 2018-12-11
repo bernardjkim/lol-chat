@@ -4,7 +4,11 @@ module.exports = function() {
   // mapping of all available chatrooms
   const defaultRoom = "default";
   const chatrooms = new Map();
-  chatrooms.set(defaultRoom, chatroom(defaultRoom));
+  createChatroom(defaultRoom);
+
+  function createChatroom(chatroomName) {
+    chatrooms.set(chatroomName, chatroom(chatroomName));
+  }
 
   function removeClient(client) {
     chatrooms.forEach(c => c.removeUser(client));
@@ -19,6 +23,7 @@ module.exports = function() {
   }
 
   return {
+    createChatroom,
     removeClient,
     getChatroomByName,
     serializeChatrooms

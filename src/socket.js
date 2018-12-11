@@ -15,13 +15,18 @@ export default function() {
     socket.off("chat-message");
   }
 
-  function message(msg) {
-    socket.emit("chat-message", { chatroomName: "default", msg });
+  function message(msg, chatroomName) {
+    socket.emit("chat-message", { chatroomName, msg });
+  }
+
+  function joinRoom(chatroomName) {
+    socket.emit("join", chatroomName);
   }
   return {
     registerHandler,
     unregisterHandler,
     message,
-    setUsername
+    setUsername,
+    joinRoom
   };
 }
