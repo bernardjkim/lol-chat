@@ -11,7 +11,7 @@ const names = [
   "Barack Obama",
   "George Bush",
   "Bill Clinton",
-  "Ricard Nixon",
+  "Richard Nixon",
   "Abraham Lincoln"
 ];
 

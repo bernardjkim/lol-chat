@@ -65,7 +65,6 @@ module.exports = function(client, clientManager, chatroomManager) {
   }
 
   function handleMessage({ chatroomName, msg } = {}, callback = () => {}) {
-    console.log("handle message " + chatroomName + " " + msg);
     const createEntry = () => ({
       username: clientManager.getUserByClientId(client.id).username,
       msg

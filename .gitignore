@@ -1,2 +1,4 @@
 node_modules
 .DS_Store
+google-credentials-heroku.json
+.env

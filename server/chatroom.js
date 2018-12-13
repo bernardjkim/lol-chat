@@ -1,9 +1,19 @@
+const translate = require("./translate");
+
+// const translate = googleTranslate();
+
 module.exports = function(name) {
   const members = new Map();
   let chatHistory = [];
 
   function broadcastMessage(message) {
-    members.forEach(m => m.client.emit("chat-message", message));
+    // console.log(message);
+    members.forEach(m => {
+      translate(message.msg, "ru").then(translation => {
+        message.msg = translation;
+        m.client.emit("chat-message", message);
+      });
+    });
   }
 
   function broadcastMembers() {

@@ -1,6 +1,7 @@
 import React from "react";
-import socket from "../socket";
 import Modal from "react-modal";
+
+import socket from "../socket";
 import UsernameForm from "./UsernameForm";
 
 const modalStyle = {
@@ -24,6 +25,7 @@ class Chatroom extends React.Component {
     this.state = {
       client: false,
       chatroom: "default",
+      language: "kr",
       members: [],
       messages: [],
       username: "",
