@@ -135,7 +135,6 @@ class Chatroom extends React.Component {
   };
 
   render() {
-    console.log(this.state);
     return (
       <div id="chat-box">
         <p>{this.state.chatroom}</p>
