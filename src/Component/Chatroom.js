@@ -32,6 +32,8 @@ class Chatroom extends React.Component {
       msg: "",
       modalOpen: true,
 
+      // TOOD: move to separate file?
+      //https://cloud.google.com/translate/docs/languages
       language: [
         {
           id: 0,
