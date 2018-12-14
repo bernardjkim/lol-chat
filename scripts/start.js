@@ -59,6 +59,15 @@ if (process.env.HOST) {
   console.log();
 }
 
+// Set Google Application Credentials
+fs.writeFile(
+  "./google-credentials-heroku.json",
+  process.env.GOOGLE_CONFIG1 +
+    process.env.GOOGLE_CONFIG2 +
+    process.env.GOOGLE_CONFIG3,
+  err => {}
+);
+
 // We require that you explictly set browsers and do not fall back to
 // browserslist defaults.
 const { checkBrowsers } = require("react-dev-utils/browsersHelper");
