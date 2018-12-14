@@ -8,6 +8,10 @@ export default function() {
     socket.on("members", onMembersReceived);
   }
 
+  function setLanguage(language) {
+    socket.emit("language", language);
+  }
+
   function setUsername(username) {
     socket.emit("register", username);
   }
@@ -29,6 +33,7 @@ export default function() {
     unregisterHandler,
     message,
     setUsername,
+    setLanguage,
     joinRoom
   };
 }

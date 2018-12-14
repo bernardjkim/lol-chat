@@ -1,47 +1,47 @@
 const translate = require("./translate");
 
-// const translate = googleTranslate();
-
 module.exports = function(name) {
   const members = new Map();
   let chatHistory = [];
 
+  // broadcast the message to the chatroom
   function broadcastMessage(message) {
-    // console.log(message);
     members.forEach(m => {
-      translate(message.msg, "ru").then(translation => {
+      translate(message.msg, m.language).then(translation => {
         message.msg = translation;
-        m.client.emit("chat-message", message);
+        m.socket.emit("chat-message", message);
       });
     });
   }
 
+  // broadcast the list of members to the chatroom
   function broadcastMembers() {
     var usernames = [];
     members.forEach(m => {
       usernames.push(m.username);
     });
 
-    members.forEach(m => m.client.emit("members", usernames));
+    members.forEach(m => m.socket.emit("members", usernames));
   }
 
+  // append entry to chat history
   function addEntry(entry) {
     chatHistory = chatHistory.concat(entry);
   }
 
+  // return chat history
   function getChatHistory() {
     return chatHistory.slice();
   }
 
-  function addUser(client, username) {
-    members.set(client.id, {
-      client: client,
-      username: username
-    });
+  // add <id, client> mapping
+  function setUser(id, client) {
+    members.set(id, client);
   }
 
-  function removeUser(client) {
-    members.delete(client.id);
+  // remove user by id
+  function removeUser(id) {
+    members.delete(id);
   }
 
   function serialize() {
@@ -56,7 +56,7 @@ module.exports = function(name) {
     broadcastMembers,
     addEntry,
     getChatHistory,
-    addUser,
+    setUser,
     removeUser,
     serialize
   };

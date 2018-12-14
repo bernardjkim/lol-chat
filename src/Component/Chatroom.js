@@ -3,6 +3,7 @@ import Modal from "react-modal";
 
 import socket from "../socket";
 import UsernameForm from "./UsernameForm";
+import Dropdown from "./Dropdown";
 
 const modalStyle = {
   content: {
@@ -25,16 +26,58 @@ class Chatroom extends React.Component {
     this.state = {
       client: false,
       chatroom: "default",
-      language: "kr",
       members: [],
       messages: [],
       username: "",
       msg: "",
-      modalOpen: true
+      modalOpen: true,
+
+      language: [
+        {
+          id: 0,
+          title: "en",
+          selected: true
+        },
+        {
+          id: 1,
+          title: "ko",
+          selected: false
+        },
+        {
+          id: 2,
+          title: "ja",
+          selected: false
+        },
+        {
+          id: 3,
+          title: "zu",
+          selected: false
+        }
+      ]
     };
   }
 
   componentDidMount() {}
+
+  toggleSelected = id => {
+    let temp = JSON.parse(JSON.stringify(this.state.language));
+    temp[id].selected = !temp[id].selected;
+    this.setState({
+      language: temp
+    });
+  };
+
+  resetThenSet = id => {
+    let temp = JSON.parse(JSON.stringify(this.state.language));
+    temp.forEach(item => (item.selected = false));
+    temp[id].selected = true;
+    this.setState({
+      language: temp
+    });
+
+    // send language pref to server
+    this.state.client.setLanguage(temp[id].title);
+  };
 
   // append msg to list our list of messages
   onMessageReceived = ({ msg, username }) => {
@@ -90,9 +133,17 @@ class Chatroom extends React.Component {
   };
 
   render() {
+    console.log(this.state);
     return (
       <div id="chat-box">
         <p>{this.state.chatroom}</p>
+
+        <Dropdown
+          title="Select Language"
+          list={this.state.language}
+          resetThenSet={this.resetThenSet}
+        />
+
         <ul>
           {this.state.members.map((m, key) => (
             <li key={key}>{m}</li>

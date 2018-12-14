@@ -2,56 +2,45 @@ module.exports = function() {
   // mapping of all connected clients
   const clients = new Map();
 
-  function addClient(client) {
-    clients.set(client.id, { client });
+  /* 
+  client {
+    socket,
+    username,
+    room,
+    language,
+    ...
+  }*/
+
+  // add client by socket id
+  function setClient(id, user) {
+    clients.set(id, user);
   }
 
-  function registerClient(client, username) {
-    var user = getUserByClientId(client.id);
-    if (!user) {
-      clients.set(client.id, { client, username, room: "default" });
-    } else {
-      clients.set(client.id, { client, username, room: user.room });
-    }
+  // get client by id
+  function getClient(id) {
+    return clients.get(id) || false;
   }
 
-  function joinRoom(client, room) {
-    var user = getUserByClientId(client.id);
-    clients.set(client.id, {
-      client: user.client,
-      username: user.username,
-      room
-    });
+  // remove client by id
+  function removeClient(id) {
+    clients.delete(id);
   }
 
-  function removeClient(client) {
-    clients.delete(client.id);
+  // get list of client ids
+  function getClientList() {
+    return Array.from(clients.keys());
   }
 
-  function getAvailableUsers() {
-    return Array.from(clients.values());
-  }
-
-  function isUserAvailable(username) {
-    return !getAvailableUsers().some(u => u.username === username);
-  }
-
-  function getUserByName(username) {
-    return clients.find(u => u.username === username);
-  }
-
-  function getUserByClientId(clientId) {
-    return clients.get(clientId) || {};
+  // check if client with id exists
+  function clientExists(id) {
+    return !getClientList().some(client_id => client_id === id);
   }
 
   return {
-    addClient,
-    registerClient,
-    joinRoom,
+    setClient,
+    getClient,
     removeClient,
-    getAvailableUsers,
-    isUserAvailable,
-    getUserByName,
-    getUserByClientId
+    getClientList,
+    clientExists
   };
 };

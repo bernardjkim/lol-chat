@@ -18,7 +18,7 @@ module.exports = function(text, target) {
       return translation;
     })
     .catch(err => {
+      console.error("ERROR");
       return "";
-      // console.error("ERROR:", err);
     });
 };
