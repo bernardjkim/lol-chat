@@ -45,13 +45,6 @@ if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
 const argv = process.argv.slice(2);
 const writeStatsJson = argv.indexOf("--stats") !== -1;
 
-// Set Google Application Credentials
-fs.writeFile(
-  "./google-credentials-heroku.json",
-  process.env.GOOGLE_CONFIG,
-  err => {}
-);
-
 // We require that you explicitly set browsers and do not fall back to
 // browserslist defaults.
 const { checkBrowsers } = require("react-dev-utils/browsersHelper");
