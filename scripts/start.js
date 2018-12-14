@@ -60,13 +60,23 @@ if (process.env.HOST) {
 }
 
 // Set Google Application Credentials
-fs.writeFile(
-  "./google-credentials-heroku.json",
-  process.env.GOOGLE_CONFIG1 +
-    process.env.GOOGLE_CONFIG2 +
-    process.env.GOOGLE_CONFIG3,
-  err => {}
-);
+if (process.env.NODE_ENV === "production") {
+  console.log("PRODUCTION");
+  fs.writeFile(
+    "./google-credentials-heroku.json",
+    process.env.GOOGLE_CONFIG,
+    err => {}
+  );
+} else {
+  console.log("DEVELOPMENT");
+  fs.writeFile(
+    "./google-credentials-heroku.json",
+    process.env.GOOGLE_CONFIG1 +
+      process.env.GOOGLE_CONFIG2 +
+      process.env.GOOGLE_CONFIG3,
+    err => {}
+  );
+}
 
 // We require that you explictly set browsers and do not fall back to
 // browserslist defaults.
