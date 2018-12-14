@@ -11,7 +11,7 @@ const names = [
   "Barack Obama",
   "George Bush",
   "Bill Clinton",
-  "Ricard Nixon",
+  "Richard Nixon",
   "Abraham Lincoln"
 ];
 
@@ -22,6 +22,7 @@ module.exports = function(server) {
     const {
       handleRegister,
       handleJoin,
+      handleLanguage,
       handleLeave,
       handleMessage,
       handleGetChatrooms,
@@ -32,11 +33,13 @@ module.exports = function(server) {
 
     var randomNum = Math.floor(Math.random() * 6);
     handleRegister(names[randomNum]);
-    handleJoin("default");
+    // handleJoin("default");
 
     client.on("register", handleRegister);
 
     client.on("join", handleJoin);
+
+    client.on("language", handleLanguage);
 
     client.on("leave", handleLeave);
 

@@ -2,14 +2,24 @@ module.exports = function(client, clientManager, chatroomManager) {
   const handleEvent = makeHandleEvent(client, clientManager, chatroomManager);
 
   function handleRegister(username, callback = () => {}) {
-    if (!clientManager.isUserAvailable(username))
-      return callback("user is not available");
+    // TODO: allow duplicate usernames?
+    // if (!clientManager.isUserAvailable(username))
+    //   return callback("user is not available");
 
-    clientManager.registerClient(client, username);
-    var chatroomName = clientManager.getUserByClientId(client.id).room;
+    var user;
+    if (clientManager.clientExists(client.id)) {
+      user = clientManager.getClient(client.id);
+      user = { ...user, username };
+    } else {
+      user = { socket: client, username, room: "default", language: "en" };
+    }
+
+    clientManager.setClient(client.id, user);
+
+    var chatroomName = user.room;
     var chatroom = chatroomManager.getChatroomByName(chatroomName);
     if (chatroom) {
-      chatroom.addUser(client, username);
+      chatroom.setUser(client.id, user);
       chatroom.broadcastMembers();
     }
 
@@ -24,8 +34,9 @@ module.exports = function(client, clientManager, chatroomManager) {
   function handleJoin(chatroomName, callback = () => {}) {
     const createEntry = () => ({ event: `joined ${chatroomName}` });
 
-    var user = clientManager.getUserByClientId(client.id);
+    var user = clientManager.getClient(client.id);
 
+    // create new room if room with chatroomName does not exist
     if (!chatroomManager.getChatroomByName(chatroomName)) {
       chatroomManager.createChatroom(chatroomName);
     }
@@ -33,11 +44,13 @@ module.exports = function(client, clientManager, chatroomManager) {
     handleEvent(chatroomName, createEntry)
       .then(function(chatroom) {
         // leave previous chatrooom
-        chatroomManager.removeClient(client);
-        clientManager.joinRoom(client, chatroomName);
+        chatroomManager.removeClient(client.id);
+
+        user = { ...user, room: chatroomName };
+        clientManager.set(client.id, user);
 
         // add member to chatroom
-        chatroom.addUser(user.client, user.username);
+        chatroom.setUser(client.id, user);
         chatroom.broadcastMembers();
 
         // send chat history to client
@@ -51,13 +64,22 @@ module.exports = function(client, clientManager, chatroomManager) {
     });
   }
 
+  function handleLanguage(language, callback = () => {}) {
+    var user = clientManager.getClient(client.id);
+    user = { ...user, language };
+    clientManager.setClient(client.id, user);
+
+    var chatroom = chatroomManager.getChatroomByName(user.room);
+    chatroom.setUser(client.id, user);
+  }
+
   function handleLeave(chatroomName, callback = () => {}) {
     const createEntry = () => ({ event: `left ${chatroomName}` });
 
     handleEvent(chatroomName, createEntry)
       .then(function(chatroom) {
         // remove member from chatroom
-        chatroom.removeUser(client);
+        chatroom.removeUser(client.id);
 
         callback(null);
       })
@@ -65,9 +87,8 @@ module.exports = function(client, clientManager, chatroomManager) {
   }
 
   function handleMessage({ chatroomName, msg } = {}, callback = () => {}) {
-    console.log("handle message " + chatroomName + " " + msg);
     const createEntry = () => ({
-      username: clientManager.getUserByClientId(client.id).username,
+      username: clientManager.getClient(client.id).username,
       msg
     });
 
@@ -86,14 +107,15 @@ module.exports = function(client, clientManager, chatroomManager) {
 
   function handleDisconnect() {
     // remove user profile
-    clientManager.removeClient(client);
+    clientManager.removeClient(client.id);
     // remove member from all chatrooms
-    chatroomManager.removeClient(client);
+    chatroomManager.removeClient(client.id);
   }
 
   return {
     handleRegister,
     handleJoin,
+    handleLanguage,
     handleLeave,
     handleMessage,
     handleGetChatrooms,
@@ -112,7 +134,7 @@ function makeHandleEvent(client, clientManager, chatroomManager) {
 
   function ensureUserSelected(clientId) {
     return ensureExists(
-      () => clientManager.getUserByClientId(clientId).username,
+      () => clientManager.getClient(clientId).username,
       "select user first"
     );
   }

@@ -1,17 +1,20 @@
 const chatroom = require("./chatroom");
 
+const defaultRoom = "default";
+
 module.exports = function() {
   // mapping of all available chatrooms
-  const defaultRoom = "default";
   const chatrooms = new Map();
   createChatroom(defaultRoom);
 
+  // create a new chatroom with provided name
   function createChatroom(chatroomName) {
     chatrooms.set(chatroomName, chatroom(chatroomName));
   }
 
-  function removeClient(client) {
-    chatrooms.forEach(c => c.removeUser(client));
+  // remove client with id from all chatrooms
+  function removeClient(id) {
+    chatrooms.forEach(c => c.removeUser(id));
   }
 
   function getChatroomByName(chatroomName) {
