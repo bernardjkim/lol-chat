@@ -1,59 +1,145 @@
 $message-width: 1200px;
 
-#messages  {
-    margin:0;
-    width: $message-width;
-    height: 500px;
-    overflow: auto;
-    list-style-type: none;
-    background: url('https://vignette.wikia.nocookie.net/leagueoflegends/images/0/0a/Pyke_Promo_01.png/revision/latest/scale-to-width-down/640?cb=20180515033457');
-    background-size: cover;
-    color: black;
-    div {
-        word-wrap: break-word;
-        max-width: 1060px;
-        color: white;
-        margin: 3px;
-        margin-right: 10px;
-        font-weight: 500;
-    }
+#container-main {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+}
+#container-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 90%;
+  width: 20%;
+  background-color: #404040;
+}
+
+.member {
+  list-style: none;
+  text-align: left;
+}
+
+#container-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 90%;
+  width: 70%;
+  background-color: #404040;
+}
+
+#container-messages {
+  height: 95%;
+  width: 100%;
+  overflow: auto;
+}
+
+#members-list {
+}
+
+.message {
+  list-style: none;
+  text-align: left;
+}
+
+#container-input {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: 5%;
+  width: 100%;
+}
+
+#language-selector {
+  width: 100px;
+}
+
+#form-message {
+  display: flex;
+  width: 100%;
+}
+
+#input-message {
+  width: 100%;
+}
+
+#submit-message {
+  width: 10%;
+}
+
+.dd-wrapper {
+  height: 100%;
+  width: 100px;
+  background-color: #01e2ad;
+}
+
+.dd-wrapper ul {
+  background-color: #01e2ad;
+  position: absolute;
+  bottom: 45px;
+  padding: 0;
+  width: 100px;
+}
+.dd-wrapper ul li {
+  position: relative;
+  list-style: none;
+}
+
+#messages {
+  margin: 0;
+  width: 65%;
+  height: 500px;
+  overflow: auto;
+  list-style-type: none;
+  background: url("https://vignette.wikia.nocookie.net/leagueoflegends/images/0/0a/Pyke_Promo_01.png/revision/latest/scale-to-width-down/640?cb=20180515033457");
+  background-size: cover;
+  color: black;
+  div {
+    word-wrap: break-word;
+    max-width: 1060px;
+    color: white;
+    margin: 3px;
+    margin-right: 10px;
+    font-weight: 500;
+  }
 }
 
 #message-bar {
-    width: $message-width - 100px;
-    font-weight: 500;
-    font-size: 30px;
-    height: 40px;
+  width: $message-width - 100px;
+  font-weight: 500;
+  font-size: 30px;
+  height: 40px;
 }
 
 .form-container {
-    display: flex;
-    border: 2px solid #2D898B;
-
+  display: flex;
+  border: 2px solid #2d898b;
 }
 #send-button {
-    box-sizing: border-box;
-    background-color: #88CCF1;
-    padding: 10px;
-    width: 130px;
-    height: 46px;
-    font-size: 20px;
-    font-weight: 400;
-    color: white;
+  box-sizing: border-box;
+  background-color: #88ccf1;
+  padding: 10px;
+  width: 130px;
+  height: 46px;
+  font-size: 20px;
+  font-weight: 400;
+  color: white;
 }
 
 .your-username {
-    color:rebeccapurple !important;
-    margin: 10px;
+  color: rebeccapurple !important;
+  margin: 10px;
 }
 .other-username {
-    color: yellow !important;
-    margin: 10px;
+  color: yellow !important;
+  margin: 10px;
 }
 
-
 .message-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
