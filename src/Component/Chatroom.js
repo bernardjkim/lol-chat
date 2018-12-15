@@ -59,7 +59,13 @@ class Chatroom extends React.Component {
     };
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    this.scrollToBottom();
+  }
+
+  componentDidUpdate() {
+    this.scrollToBottom();
+  }
 
   toggleSelected = id => {
     let temp = JSON.parse(JSON.stringify(this.state.language));
@@ -134,6 +140,10 @@ class Chatroom extends React.Component {
     this.setState({ msg: e.target.value });
   };
 
+  scrollToBottom = () => {
+    this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+  };
+
   render() {
     return (
       <div id="chat-box">
@@ -166,6 +176,12 @@ class Chatroom extends React.Component {
               </div>
             );
           })}
+          <div
+            style={{ float: "left", clear: "both" }}
+            ref={el => {
+              this.messagesEnd = el;
+            }}
+          />
         </div>
 
         <form className="form-container" onSubmit={this.handleSubmit}>
