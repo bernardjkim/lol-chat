@@ -140,58 +140,72 @@ class Chatroom extends React.Component {
     this.setState({ msg: e.target.value });
   };
 
+  // https://stackoverflow.com/questions/37620694/how-to-scroll-to-bottom-in-react
   scrollToBottom = () => {
     this.messagesEnd.scrollIntoView({ behavior: "smooth" });
   };
 
   render() {
     return (
-      <div id="chat-box">
-        <p>{this.state.chatroom}</p>
-
-        <Dropdown
-          title="Select Language"
-          list={this.state.language}
-          resetThenSet={this.resetThenSet}
-        />
-
-        <ul>
-          {this.state.members.map((m, key) => (
-            <li key={key}>{m}</li>
-          ))}
-        </ul>
-        <div id="messages">
-          {this.state.messages.map((msg, key) => {
-            const username = msg.username;
-            const message = msg.msg;
-            const yourUsername =
-              this.state.username === username
-                ? "your-username"
-                : "other-username";
-
-            return (
-              <div key={key} className="message-container">
-                <div className={yourUsername}>{username}</div>
-                <div className="message">{message}</div>
-              </div>
-            );
-          })}
-          <div
-            style={{ float: "left", clear: "both" }}
-            ref={el => {
-              this.messagesEnd = el;
-            }}
-          />
+      <div id="container-main">
+        <div id="container-left">
+          <h3 id="room-name">{this.state.chatroom}</h3>
+          <ul id="members-list">
+            {this.state.members.map((member, key) => (
+              <li key={key} className="member">
+                {member}
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <form className="form-container" onSubmit={this.handleSubmit}>
-          <input
-            id="message-bar"
-            onChange={this.handleChange}
-            value={this.state.msg}
-          />
-          <button id="send-button">Send</button>
-        </form>
+        <div id="container-right">
+          <div id="container-messages">
+            <ul id="message-list">
+              {/* {this.state.messages.map((msg, key) => {
+                const yourUsername =
+                  this.state.username === msg.username
+                    ? "your-username"
+                    : "other-username";
+
+                return (
+                  <div key={key} className="message-container">
+                    <div className={yourUsername}>{msg.username}</div>
+                    <div className="message">{msg.message}</div>
+                  </div>
+                );
+              })} */}
+              {this.state.messages.map((msg, key) => (
+                <li key={key} className="message">
+                  {msg.username}: {msg.msg}
+                </li>
+              ))}
+            </ul>
+            <div
+              ref={el => {
+                this.messagesEnd = el;
+              }}
+            />
+          </div>
+          <div id="container-input">
+            <div id="language-selector">
+              <Dropdown
+                id="language-selector"
+                title="en"
+                list={this.state.language}
+                resetThenSet={this.resetThenSet}
+              />
+            </div>
+            <form id="form-message" onSubmit={this.handleSubmit}>
+              <input
+                id="input-message"
+                onChange={this.handleChange}
+                value={this.state.msg}
+              />
+              <button id="submit-message">send</button>
+            </form>
+          </div>
+        </div>
         <Modal
           isOpen={this.state.modalOpen}
           style={modalStyle}

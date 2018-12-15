@@ -55,8 +55,7 @@ class Dropdown extends React.Component {
                 key={item.id}
                 onClick={() => this.selectItem(item.title, item.id)}
               >
-                {item.title} {item.title}{" "}
-                {item.selected && <FontAwesome name="check" />}
+                {item.title} {item.selected && <FontAwesome name="check" />}
               </li>
             ))}
           </ul>
