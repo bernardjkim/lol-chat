@@ -20,6 +20,11 @@ const modalStyle = {
   }
 };
 
+const mediaStreamConstraints = {
+  audio: true,
+  video: true
+};
+
 class Chatroom extends React.Component {
   constructor(props) {
     super(props);
@@ -31,6 +36,7 @@ class Chatroom extends React.Component {
       username: "",
       msg: "",
       modalOpen: true,
+      localStream: false,
 
       // TOOD: move to separate file?
       //https://cloud.google.com/translate/docs/languages
@@ -134,6 +140,9 @@ class Chatroom extends React.Component {
     // set username
     client.setUsername(username);
     this.setState({ client, username, chatroom: "default" });
+
+    // get media
+    this.getMedia();
   }
 
   handleChange = e => {
@@ -145,9 +154,43 @@ class Chatroom extends React.Component {
     this.messagesEnd.scrollIntoView({ behavior: "smooth" });
   };
 
+  getMedia() {
+    // var localStream;
+    // var localVideo = document.querySelector("video");
+    // var remoteVideo = document.querySelector("#remoteVideo");
+
+    navigator.mediaDevices
+      .getUserMedia(mediaStreamConstraints)
+      .then(this.gotStream)
+      .catch(function(e) {
+        alert("getUserMedia() error: " + e);
+      });
+  }
+
+  gotStream = stream => {
+    console.log("Adding local stream.");
+    this.setState({ localStream: stream });
+    // this.video.srcObject = stream;
+    // localVideo.srcObject = stream;
+    // sendMessage("got user media");
+  };
+
   render() {
     return (
       <div id="container-main">
+        <div id="videos">
+          {this.state.localStream && (
+            <video
+              autoPlay
+              playsInline
+              ref={video => {
+                video.srcObject = this.state.localStream;
+              }}
+            />
+          )}
+          {/* <video id="localVideo" autoPlay muted playsInline />
+          <video id="remoteVideo" autoPlay playsInline /> */}
+        </div>
         <div id="container-left">
           <h3 id="room-name">{this.state.chatroom}</h3>
           <ul id="members-list">
