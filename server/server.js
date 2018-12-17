@@ -26,7 +26,7 @@ module.exports = function(server) {
 
     handleRegister("default");
 
-    client.broadcast.emit("message", "test");
+    client.broadcast.emit("message", { type: "joined", clientId: client.id });
 
     client.on("register", handleRegister);
 
@@ -45,6 +45,7 @@ module.exports = function(server) {
     client.on("message", function(message) {
       console.log("Client said: ", message);
       // for a real app, would be room-only (not broadcast)
+      message.clientId = client.id;
       client.broadcast.emit("message", message);
     });
 

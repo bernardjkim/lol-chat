@@ -52,6 +52,7 @@ class Chatroom extends React.Component {
       modalOpen: true,
       localStream: false,
       isStarted: false,
+      connectionList: {},
       // NOTE: is pc mutable? is that a problem to store it as a state variable?
       pc: false,
 
@@ -191,28 +192,32 @@ class Chatroom extends React.Component {
     // this.maybeStart();
   };
 
-  maybeStart = () => {
+  maybeStart = clientId => {
     console.log(">>>>>>> maybeStart() ", this.state.localStream);
     if (this.state.localStream) {
       console.log(">>>>>> creating peer connection");
-      this.createPeerConnection();
+      this.createPeerConnection(clientId);
 
-      var pc = this.state.pc;
+      var pc = this.state.connectionList[clientId];
       pc.addStream(this.state.localStream);
-      this.setState({ pc, isStarted: true });
 
-      this.doCall();
+      this.setState({
+        connectionList: { ...this.state.connectionList, [clientId]: pc }
+      });
+      this.doCall(clientId);
     }
   };
 
-  createPeerConnection = () => {
+  createPeerConnection = clientId => {
     try {
       var pc = new RTCPeerConnection(pcConfig);
       pc.onicecandidate = this.handleIceCandidate;
       pc.onaddstream = this.handleRemoteStreamAdded;
       pc.onremovestream = this.handleRemoteStreamRemoved;
 
-      this.setState({ pc });
+      this.setState({
+        connectionList: { ...this.state.connectionList, [clientId]: pc }
+      });
       console.log("Created RTCPeerConnnection");
     } catch (e) {
       console.log("Failed to create PeerConnection, exception: " + e.message);
@@ -251,18 +256,23 @@ class Chatroom extends React.Component {
     console.log("createOffer() error: ", event);
   }
 
-  doCall = () => {
+  doCall = clientId => {
     console.log("Sending offer to peer");
-    this.state.pc.createOffer(
-      this.setLocalAndSendMessage,
+
+    this.state.connectionList[clientId].createOffer(
+      this.setLocalAndSendMessage(clientId),
       this.handleCreateOfferError
     );
   };
 
-  setLocalAndSendMessage = sessionDescription => {
-    var pc = this.state.pc;
-    pc.setLocalDescription(sessionDescription);
-    this.setState({ pc });
+  setLocalAndSendMessage = clientId => sessionDescription => {
+    // var pc = this.state.connectionList[clientId];
+    // pc.setLocalDescription(sessionDescription);
+    // this.setState({
+    //   connectionList: { ...this.state.connectionList, [clientId]: pc }
+    // });
+
+    this.state.connectionList[clientId].setLocalDescription(sessionDescription);
 
     console.log("setLocalAndSendMessage sending message", sessionDescription);
     this.state.client.sendMessage(sessionDescription);
@@ -273,11 +283,14 @@ class Chatroom extends React.Component {
     // trace("Failed to create session description: " + error.toString());
   }
 
-  doAnswer = () => {
+  doAnswer = clientId => {
     console.log("Sending answer to peer.");
-    this.state.pc
+    this.state.connectionList[clientId]
       .createAnswer()
-      .then(this.setLocalAndSendMessage, this.onCreateSessionDescriptionError);
+      .then(
+        this.setLocalAndSendMessage(clientId),
+        this.onCreateSessionDescriptionError
+      );
   };
 
   handleRemoteHangup = () => {
@@ -300,30 +313,56 @@ class Chatroom extends React.Component {
     var pc;
     if (message === "got user media") {
       // this.maybeStart();
-    } else if (message === "test") {
-      if (!this.state.isStarted) {
-        this.maybeStart();
+    } else if (message.type === "joined") {
+      if (!this.state.connectionList[message.clientId]) {
+        this.maybeStart(message.clientId);
       }
+      // if (!this.state.isStarted) {
+      //   this.maybeStart();
+      // }
     } else if (message.type === "offer") {
-      if (!this.state.isStarted) {
-        this.maybeStart();
+      // if (!this.state.isStarted) {
+      //   this.maybeStart();
+      // }
+      if (!this.state.connectionList[message.clientId]) {
+        this.maybeStart(message.clientId);
       }
-      pc = this.state.pc;
+
+      pc = this.state.connectionList[message.clientId];
       pc.setRemoteDescription(new RTCSessionDescription(message));
-      this.setState({ pc });
-      this.doAnswer();
+      this.setState({
+        connectionList: {
+          ...this.state.connectionList,
+          [message.clientId]: pc
+        }
+      });
+      this.doAnswer(message.clientId);
     } else if (message.type === "answer") {
-      pc = this.state.pc;
-      pc.setRemoteDescription(new RTCSessionDescription(message));
-      this.setState({ pc });
+      if (this.state.connectionList[message.clientId]) {
+        pc = this.state.connectionList[message.clientId];
+        pc.setRemoteDescription(new RTCSessionDescription(message));
+        this.setState({
+          connectionList: {
+            ...this.state.connectionList,
+            [message.clientId]: pc
+          }
+        });
+      }
     } else if (message.type === "candidate") {
       var candidate = new RTCIceCandidate({
         sdpMLineIndex: message.label,
         candidate: message.candidate
       });
-      pc = this.state.pc;
-      pc.addIceCandidate(candidate);
-      this.setState({ pc });
+      if (this.state.connectionList[message.clientId]) {
+        pc = this.state.connectionList[message.clientId];
+        pc.addIceCandidate(candidate);
+        this.setState({
+          connectionList: {
+            ...this.state.connectionList,
+            [message.clientId]: pc
+          }
+        });
+      }
     } else if (message === "bye") {
       this.handleRemoteHangup();
     }
