@@ -26,6 +26,8 @@ module.exports = function(server) {
 
     handleRegister("default");
 
+    client.broadcast.emit("message", "test");
+
     client.on("register", handleRegister);
 
     client.on("join", handleJoin);
@@ -47,7 +49,7 @@ module.exports = function(server) {
     });
 
     client.on("ipaddr", function() {
-      console.log('ipaddr');
+      console.log("ipaddr");
       var ifaces = os.networkInterfaces();
       for (var dev in ifaces) {
         ifaces[dev].forEach(function(details) {
