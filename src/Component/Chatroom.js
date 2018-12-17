@@ -198,7 +198,7 @@ class Chatroom extends React.Component {
 
   maybeStart = clientId => {
     console.log(">>>>>>> maybeStart() ", this.state.localStream);
-    if (this.state.localStream) {
+    if (this.state.localStream && !this.state.connectionList[clientId]) {
       console.log(">>>>>> creating peer connection");
       this.createPeerConnection(clientId);
       this.state.connectionList[clientId].addStream(this.state.localStream);
@@ -344,8 +344,6 @@ class Chatroom extends React.Component {
   };
 
   render() {
-    console.log("TEST");
-    console.log(this.state.remoteStreams);
     return (
       <div id="container-main">
         <div id="videos">
