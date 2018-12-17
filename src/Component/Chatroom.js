@@ -51,6 +51,7 @@ class Chatroom extends React.Component {
       msg: "",
       modalOpen: true,
       localStream: false,
+      isStarted: false,
       // NOTE: is pc mutable? is that a problem to store it as a state variable?
       pc: false,
 
@@ -196,6 +197,7 @@ class Chatroom extends React.Component {
       console.log(">>>>>> creating peer connection");
       this.createPeerConnection();
 
+      this.setState({ isStarted: true });
       var pc = this.state.pc;
       pc.addStream(this.state.localStream);
       this.setState({ pc: pc });
@@ -240,6 +242,7 @@ class Chatroom extends React.Component {
   handleRemoteStreamAdded = event => {
     console.log("Remote stream added.");
     this.setState({ remoteStream: event.stream });
+    this.video.srcObject = event.stream;
     // this.state.remoteStream = event.stream;
     // remoteVideo.srcObject = remoteStream;
   };
@@ -300,7 +303,9 @@ class Chatroom extends React.Component {
     if (message === "got user media") {
       this.maybeStart();
     } else if (message.type === "offer") {
-      this.maybeStart();
+      if (!this.state.isStarted) {
+        this.maybeStart();
+      }
 
       pc = this.state.pc;
       pc.setRemoteDescription(new RTCSessionDescription(message));
@@ -336,15 +341,18 @@ class Chatroom extends React.Component {
               // }}
             />
           )}
-          {this.state.remoteStream && (
-            <video
-              autoPlay
-              playsInline
-              ref={video2 => {
-                video2.srcObject = this.state.remoteStream;
-              }}
-            />
-          )}
+          {/* {this.state.remoteStream && ( */}
+          <video
+            autoPlay
+            playsInline
+            ref={video => {
+              this.video = video;
+            }}
+            // ref={video2 => {
+            //   video2.srcObject = this.state.remoteStream;
+            // }}
+          />
+          {/* )} */}
         </div>
         <div id="container-left">
           <h3 id="room-name">{this.state.chatroom}</h3>
