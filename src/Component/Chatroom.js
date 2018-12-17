@@ -199,6 +199,7 @@ class Chatroom extends React.Component {
       var pc = this.state.pc;
       pc.addStream(this.state.localStream);
       this.setState({ pc: pc });
+      debugger
 
       this.doCall();
     }
@@ -206,6 +207,7 @@ class Chatroom extends React.Component {
 
   createPeerConnection = () => {
     try {
+
       var pc = new RTCPeerConnection(null);
       pc.onicecandidate = this.handleIceCandidate;
       pc.onaddstream = this.handleRemoteStreamAdded;
@@ -214,6 +216,7 @@ class Chatroom extends React.Component {
       this.setState({ pc });
       console.log("Created RTCPeerConnnection");
     } catch (e) {
+
       console.log("Failed to create PeerConnection, exception: " + e.message);
       alert("Cannot create RTCPeerConnection object.");
       return;
