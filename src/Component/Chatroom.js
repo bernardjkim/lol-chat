@@ -246,7 +246,7 @@ class Chatroom extends React.Component {
         [clientId]: event.stream
       }
     });
-    // this.video.srcObject = event.stream;
+    this.video.srcObject = event.stream;
   };
 
   handleRemoteStreamRemoved = clientId => event => {
@@ -349,7 +349,14 @@ class Chatroom extends React.Component {
     return (
       <div id="container-main">
         <div id="videos">
-          {Object.keys(this.state.remoteStreams).map(clientId => (
+          <video
+            autoPlay
+            playsInline
+            ref={ref => {
+              this.video = ref;
+            }}
+          />
+          {/* {Object.keys(this.state.remoteStreams).map(clientId => (
             <video
               key={clientId}
               autoPlay
@@ -358,7 +365,7 @@ class Chatroom extends React.Component {
                 ref.srcObject = this.state.remoteStreams[clientId];
               }}
             />
-          ))}
+          ))} */}
         </div>
         <div id="container-left">
           <h3 id="room-name">{this.state.chatroom}</h3>
