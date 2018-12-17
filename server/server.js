@@ -47,6 +47,7 @@ module.exports = function(server) {
     });
 
     client.on("ipaddr", function() {
+      console.log('ipaddr');
       var ifaces = os.networkInterfaces();
       for (var dev in ifaces) {
         ifaces[dev].forEach(function(details) {

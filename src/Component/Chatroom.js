@@ -21,7 +21,7 @@ const modalStyle = {
 };
 
 const mediaStreamConstraints = {
-  audio: true,
+  audio: false,
   video: true
 };
 
@@ -208,7 +208,7 @@ class Chatroom extends React.Component {
 
   createPeerConnection = () => {
     try {
-      var pc = new RTCPeerConnection(null);
+      var pc = new RTCPeerConnection(pcConfig);
       pc.onicecandidate = this.handleIceCandidate;
       pc.onaddstream = this.handleRemoteStreamAdded;
       pc.onremovestream = this.handleRemoteStreamRemoved;
@@ -288,9 +288,11 @@ class Chatroom extends React.Component {
 
   stop = () => {
     var pc = this.state.pc;
-    pc.close();
-    pc = null;
-    this.setState({ pc });
+    if (pc) {
+      pc.close();
+      pc = null;
+      this.setState({ pc });
+    }
   };
 
   // This client receives a message
