@@ -21,7 +21,7 @@ const modalStyle = {
 };
 
 const mediaStreamConstraints = {
-  audio: false,
+  audio: true,
   video: true
 };
 
@@ -155,7 +155,7 @@ class Chatroom extends React.Component {
     client.registerHandler(
       this.onMessageReceived,
       this.onMembersReceived,
-      this.messageHandler.bind(this)
+      this.messageHandler
     );
 
     // set username
@@ -196,7 +196,7 @@ class Chatroom extends React.Component {
     if (this.state.localStream) {
       console.log(">>>>>> creating peer connection");
       this.createPeerConnection();
-      debugger
+
 
       var pc = this.state.pc;
       pc.addStream(this.state.localStream);
@@ -238,7 +238,6 @@ class Chatroom extends React.Component {
   };
 
   handleRemoteStreamAdded = event => {
-    debugger
     console.log("Remote stream added.");
     this.setState({ remoteStream: event.stream });
     this.video.srcObject = event.stream;
@@ -311,7 +310,7 @@ class Chatroom extends React.Component {
       if (!this.state.isStarted) {
         this.maybeStart();
       } 
-      debugger
+
 
       pc = this.state.pc;
       pc.setRemoteDescription(new RTCSessionDescription(message));
