@@ -36,6 +36,7 @@ class UsernameForm extends React.Component {
             id="username-input"
             onChange={this.onChange.bind(this)}
             value={this.state.username}
+            autoFocus
           />
           <button>set username</button>
         </form>
