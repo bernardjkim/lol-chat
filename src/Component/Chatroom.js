@@ -155,7 +155,7 @@ class Chatroom extends React.Component {
     client.registerHandler(
       this.onMessageReceived,
       this.onMembersReceived,
-      this.messageHandler
+      this.messageHandler.bind(this)
     );
 
     // set username
@@ -196,6 +196,7 @@ class Chatroom extends React.Component {
     if (this.state.localStream) {
       console.log(">>>>>> creating peer connection");
       this.createPeerConnection();
+      debugger
 
       var pc = this.state.pc;
       pc.addStream(this.state.localStream);
@@ -309,7 +310,9 @@ class Chatroom extends React.Component {
     } else if (message.type === "offer") {
       if (!this.state.isStarted) {
         this.maybeStart();
-      }
+      } 
+      debugger
+
       pc = this.state.pc;
       pc.setRemoteDescription(new RTCSessionDescription(message));
       this.setState({ pc });
