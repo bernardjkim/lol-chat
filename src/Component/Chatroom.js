@@ -21,7 +21,7 @@ const modalStyle = {
 };
 
 const mediaStreamConstraints = {
-  audio: true,
+  audio: false,
   video: true
 };
 
@@ -187,8 +187,8 @@ class Chatroom extends React.Component {
   gotStream = stream => {
     console.log("Adding local stream.");
     this.setState({ localStream: stream });
-    this.state.client.sendMessage("got user media");
-    this.maybeStart();
+    // this.state.client.sendMessage("got user media");
+    // this.maybeStart();
   };
 
   maybeStart = () => {
@@ -197,10 +197,9 @@ class Chatroom extends React.Component {
       console.log(">>>>>> creating peer connection");
       this.createPeerConnection();
 
-      this.setState({ isStarted: true });
       var pc = this.state.pc;
       pc.addStream(this.state.localStream);
-      this.setState({ pc: pc });
+      this.setState({ pc, isStarted: true });
 
       this.doCall();
     }
@@ -208,8 +207,7 @@ class Chatroom extends React.Component {
 
   createPeerConnection = () => {
     try {
-
-      var pc = new RTCPeerConnection(null);
+      var pc = new RTCPeerConnection(pcConfig);
       pc.onicecandidate = this.handleIceCandidate;
       pc.onaddstream = this.handleRemoteStreamAdded;
       pc.onremovestream = this.handleRemoteStreamRemoved;
@@ -291,9 +289,11 @@ class Chatroom extends React.Component {
 
   stop = () => {
     var pc = this.state.pc;
-    pc.close();
-    pc = null;
-    this.setState({ pc });
+    if (pc) {
+      pc.close();
+      pc = false;
+      this.setState({ pc, isStarted: false });
+    }
   };
 
   // This client receives a message
@@ -301,12 +301,15 @@ class Chatroom extends React.Component {
     console.log("Client received message:", message);
     var pc;
     if (message === "got user media") {
-      this.maybeStart();
+      // this.maybeStart();
+    } else if (message === "test") {
+      if (!this.state.isStarted) {
+        this.maybeStart();
+      }
     } else if (message.type === "offer") {
       if (!this.state.isStarted) {
         this.maybeStart();
       }
-
       pc = this.state.pc;
       pc.setRemoteDescription(new RTCSessionDescription(message));
       this.setState({ pc });
