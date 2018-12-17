@@ -201,7 +201,6 @@ class Chatroom extends React.Component {
       var pc = this.state.pc;
       pc.addStream(this.state.localStream);
       this.setState({ pc: pc });
-      debugger
 
       this.doCall();
     }
@@ -240,6 +239,7 @@ class Chatroom extends React.Component {
   };
 
   handleRemoteStreamAdded = event => {
+    debugger
     console.log("Remote stream added.");
     this.setState({ remoteStream: event.stream });
     this.video.srcObject = event.stream;
@@ -332,7 +332,7 @@ class Chatroom extends React.Component {
     return (
       <div id="container-main">
         <div id="videos">
-          {this.state.localStream && (
+          {/* {this.state.localStream && (
             <video
               autoPlay
               playsInline
@@ -340,8 +340,8 @@ class Chatroom extends React.Component {
               //   video1.srcObject = this.state.localStream;
               // }}
             />
-          )}
-          {/* {this.state.remoteStream && ( */}
+          )} */}
+          {this.state.remoteStream && (
           <video
             autoPlay
             playsInline
@@ -352,6 +352,8 @@ class Chatroom extends React.Component {
             //   video2.srcObject = this.state.remoteStream;
             // }}
           />
+          )}
+          
           {/* )} */}
         </div>
         <div id="container-left">
