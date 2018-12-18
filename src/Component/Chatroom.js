@@ -202,7 +202,7 @@ class Chatroom extends React.Component {
       console.log(">>>>>> creating peer connection");
       this.createPeerConnection(clientId);
       this.state.connectionList[clientId].addStream(this.state.localStream);
-      this.doCall(clientId);
+      //this.doCall(clientId);
     }
   };
 
@@ -270,6 +270,7 @@ class Chatroom extends React.Component {
   };
 
   setLocalAndSendMessage = clientId => sessionDescription => {
+    console.log("set local description for: ", clientId);
     this.state.connectionList[clientId].setLocalDescription(sessionDescription);
     console.log("setLocalAndSendMessage sending message", sessionDescription);
     this.state.client.sendMessage(sessionDescription);
@@ -299,9 +300,9 @@ class Chatroom extends React.Component {
     var pc = this.state.connectionList[clientId];
     if (pc) {
       pc.close();
-      this.setState({
-        connectionList: { ...this.state.connectionList, [clientId]: false }
-      });
+      var connectionList = this.state.connectionList;
+      delete connectionList[clientId];
+      this.setState({ connectionList });
     }
   };
 
@@ -311,6 +312,7 @@ class Chatroom extends React.Component {
     if (message.type === "joined") {
       if (!this.state.connectionList[message.clientId]) {
         this.maybeStart(message.clientId);
+        this.doCall(message.clientId);
       }
     } else if (message.type === "offer") {
       if (!this.state.connectionList[message.clientId]) {
