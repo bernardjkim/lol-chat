@@ -28,7 +28,8 @@ const mediaStreamConstraints = {
 var pcConfig = {
   iceServers: [
     {
-      urls: "stun:stun.l.google.com:19302"
+      urls: "stun:stun.l.google.com:19302",
+
     }
   ]
 };
@@ -66,22 +67,22 @@ class Chatroom extends React.Component {
       language: [
         {
           id: 0,
-          title: "en",
+          title: "EN",
           selected: true
         },
         {
           id: 1,
-          title: "ko",
+          title: "KO",
           selected: false
         },
         {
           id: 2,
-          title: "ja",
+          title: "JA",
           selected: false
         },
         {
           id: 3,
-          title: "zu",
+          title: "ZU",
           selected: false
         }
       ]
@@ -209,7 +210,7 @@ class Chatroom extends React.Component {
   createPeerConnection = clientId => {
     let that = this;
     try {
-      var pc = new RTCPeerConnection(pcConfig);
+      var pc = new RTCPeerConnection(null);
       pc.onicecandidate = this.handleIceCandidate;
       pc.onaddstream = this.handleRemoteStreamAdded(clientId, that);
       pc.onremovestream = this.handleRemoteStreamRemoved(clientId);
@@ -414,7 +415,7 @@ class Chatroom extends React.Component {
             <div id="language-selector">
               <Dropdown
                 id="language-selector"
-                title="en"
+                title="EN"
                 list={this.state.language}
                 resetThenSet={this.resetThenSet}
               />
