@@ -41,24 +41,24 @@ module.exports = function(server) {
     client.on("availableUsers", handleGetAvailableUsers);
 
     client.on("message", function(message) {
-      console.log("Client said: ", message);
+      console.log("Client: ", client.id, " said: ", message);
       // for a real app, would be room-only (not broadcast)
       message.clientId = client.id;
       client.broadcast.emit("message", message);
     });
 
     // NOTE: not sure what this is used for ???
-    // client.on("ipaddr", function() {
-    //   console.log("ipaddr");
-    //   var ifaces = os.networkInterfaces();
-    //   for (var dev in ifaces) {
-    //     ifaces[dev].forEach(function(details) {
-    //       if (details.family === "IPv4" && details.address !== "127.0.0.1") {
-    //         socket.emit("ipaddr", details.address);
-    //       }
-    //     });
-    //   }
-    // });
+    client.on("ipaddr", function() {
+      console.log("ipaddr msg received");
+      var ifaces = os.networkInterfaces();
+      for (var dev in ifaces) {
+        ifaces[dev].forEach(function(details) {
+          if (details.family === "IPv4" && details.address !== "127.0.0.1") {
+            socket.emit("ipaddr", details.address);
+          }
+        });
+      }
+    });
 
     client.on("disconnect", function() {
       console.log("client disconnect...", client.id);

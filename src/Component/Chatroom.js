@@ -198,11 +198,11 @@ class Chatroom extends React.Component {
 
   maybeStart = clientId => {
     console.log(">>>>>>> maybeStart() ", this.state.localStream);
-    if (this.state.localStream) {
+    if (this.state.localStream && !this.state.connectionList[clientId]) {
       console.log(">>>>>> creating peer connection");
       this.createPeerConnection(clientId);
       this.state.connectionList[clientId].addStream(this.state.localStream);
-      this.doCall(clientId);
+      //this.doCall(clientId);
     }
   };
 
@@ -247,7 +247,7 @@ class Chatroom extends React.Component {
         [clientId]: event.stream
       }
     });
-    // this.video.srcObject = event.stream;
+    this.video.srcObject = event.stream;
   };
 
   handleRemoteStreamRemoved = clientId => event => {
@@ -271,6 +271,7 @@ class Chatroom extends React.Component {
   };
 
   setLocalAndSendMessage = clientId => sessionDescription => {
+    console.log("set local description for: ", clientId);
     this.state.connectionList[clientId].setLocalDescription(sessionDescription);
     console.log("setLocalAndSendMessage sending message", sessionDescription);
     this.state.client.sendMessage(sessionDescription);
@@ -300,9 +301,9 @@ class Chatroom extends React.Component {
     var pc = this.state.connectionList[clientId];
     if (pc) {
       pc.close();
-      this.setState({
-        connectionList: { ...this.state.connectionList, [clientId]: false }
-      });
+      var connectionList = this.state.connectionList;
+      delete connectionList[clientId];
+      this.setState({ connectionList });
     }
   };
 
@@ -312,6 +313,7 @@ class Chatroom extends React.Component {
     if (message.type === "joined") {
       if (!this.state.connectionList[message.clientId]) {
         this.maybeStart(message.clientId);
+        this.doCall(message.clientId);
       }
     } else if (message.type === "offer") {
       if (!this.state.connectionList[message.clientId]) {
@@ -345,12 +347,17 @@ class Chatroom extends React.Component {
   };
 
   render() {
-    console.log("TEST");
-    console.log(this.state.remoteStreams);
     return (
       <div id="container-main">
         <div id="videos">
-          {Object.keys(this.state.remoteStreams).map(clientId => (
+          <video
+            autoPlay
+            playsInline
+            ref={ref => {
+              this.video = ref;
+            }}
+          />
+          {/* {Object.keys(this.state.remoteStreams).map(clientId => (
             <video
               key={clientId}
               autoPlay
@@ -359,7 +366,7 @@ class Chatroom extends React.Component {
                 ref.srcObject = this.state.remoteStreams[clientId];
               }}
             />
-          ))}
+          ))} */}
         </div>
         <div id="container-left">
           <h3 id="room-name">{this.state.chatroom}</h3>
