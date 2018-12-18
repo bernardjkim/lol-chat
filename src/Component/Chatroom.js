@@ -4,59 +4,8 @@ import Modal from "react-modal";
 import socket from "../socket";
 import UsernameForm from "./UsernameForm";
 import Dropdown from "./Dropdown";
-
-const modalStyle = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)",
-    width: "500px",
-    height: "400px",
-    overflow: "visible",
-    border: "1px solid #e2dede"
-  }
-};
-
-const mediaStreamConstraints = {
-  audio: true,
-  video: true
-};
-
-var pcConfig = {
-  iceServers: [
-    {
-      urls: "stun:stun.l.google.com:19302"
-    },
-    {
-      urls: [
-        "turn:webrtcweb.com:7788", // coTURN 7788+8877
-        "turn:webrtcweb.com:4455?transport=udp", // restund udp
-
-        "turn:webrtcweb.com:8877?transport=udp", // coTURN udp
-        "turn:webrtcweb.com:8877?transport=tcp" // coTURN tcp
-      ],
-      username: "muazkh",
-      credential: "muazkh"
-    }
-  ]
-};
-
-// var pcConfig = {
-//   iceServers: [
-//     {
-//       urls: "stun:stun.l.google.com:19302"
-//     }
-//   ]
-// };
-
-// Set up audio and video regardless of what devices are present.
-var sdpConstraints = {
-  offerToReceiveAudio: true,
-  offerToReceiveVideo: true
-};
+import VideoStream from './video';
+import Variables from './variable_utils';
 
 class Chatroom extends React.Component {
   constructor(props) {
@@ -202,179 +151,172 @@ class Chatroom extends React.Component {
 
   getMedia = () => {
     navigator.mediaDevices
-      .getUserMedia(mediaStreamConstraints)
+      .getUserMedia(Variables.mediaStreamConstraints)
       .then(this.gotStream)
       .catch(function(e) {
         alert("getUserMedia() error: " + e);
       });
   };
 
-  gotStream = stream => {
-    console.log("Adding local stream.");
-    this.setState({ localStream: stream });
-    this.state.client.sendMessage({ type: "joined" });
-  };
+  // gotStream = stream => {
+  //   console.log("Adding local stream.");
+  //   this.setState({ localStream: stream });
+  //   this.state.client.sendMessage({ type: "joined" });
+  // };
 
-  maybeStart = clientId => {
-    console.log(">>>>>>> maybeStart() ", this.state.localStream);
-    if (this.state.localStream && !this.state.connectionList[clientId]) {
-      console.log(">>>>>> creating peer connection");
-      this.createPeerConnection(clientId);
-      this.state.connectionList[clientId].addStream(this.state.localStream);
-      //this.doCall(clientId);
-    }
-  };
+  // maybeStart = clientId => {
+  //   console.log(">>>>>>> maybeStart() ", this.state.localStream);
+  //   if (this.state.localStream && !this.state.connectionList[clientId]) {
+  //     console.log(">>>>>> creating peer connection");
+  //     this.createPeerConnection(clientId);
+  //     this.state.connectionList[clientId].addStream(this.state.localStream);
+  //     //this.doCall(clientId);
+  //   }
+  // };
 
-  createPeerConnection = clientId => {
-    try {
-      var pc = new RTCPeerConnection(pcConfig);
-      pc.onicecandidate = this.handleIceCandidate;
-      pc.onaddstream = this.handleRemoteStreamAdded(clientId);
-      pc.onremovestream = this.handleRemoteStreamRemoved(clientId);
+  // createPeerConnection = clientId => {
+  //   try {
+  //     var pc = new RTCPeerConnection(pcConfig);
+  //     pc.onicecandidate = this.handleIceCandidate;
+  //     pc.onaddstream = this.handleRemoteStreamAdded(clientId);
+  //     pc.onremovestream = this.handleRemoteStreamRemoved(clientId);
 
-      this.setState({
-        connectionList: { ...this.state.connectionList, [clientId]: pc }
-      });
-      console.log("Created RTCPeerConnnection");
-    } catch (e) {
+  //     this.setState({
+  //       connectionList: { ...this.state.connectionList, [clientId]: pc }
+  //     });
+  //     console.log("Created RTCPeerConnnection");
+  //   } catch (e) {
 
-      console.log("Failed to create PeerConnection, exception: " + e.message);
-      alert("Cannot create RTCPeerConnection object.");
-      return;
-    }
-  };
+  //     console.log("Failed to create PeerConnection, exception: " + e.message);
+  //     alert("Cannot create RTCPeerConnection object.");
+  //     return;
+  //   }
+  // };
 
-  handleIceCandidate = event => {
-    console.log("icecandidate event: ", event);
-    if (event.candidate) {
-      this.state.client.sendMessage({
-        type: "candidate",
-        label: event.candidate.sdpMLineIndex,
-        id: event.candidate.sdpMid,
-        candidate: event.candidate.candidate
-      });
-    } else {
-      console.log("End of candidates.");
-    }
-  };
+  // handleIceCandidate = event => {
+  //   console.log("icecandidate event: ", event);
+  //   if (event.candidate) {
+  //     this.state.client.sendMessage({
+  //       type: "candidate",
+  //       label: event.candidate.sdpMLineIndex,
+  //       id: event.candidate.sdpMid,
+  //       candidate: event.candidate.candidate
+  //     });
+  //   } else {
+  //     console.log("End of candidates.");
+  //   }
+  // };
 
-  handleRemoteStreamAdded = (clientId) => event => {
-    console.log("Remote stream added.");
-    let new_State = Object.assign({ [clientId]: event.stream}, this.state.remoteStreams, )
-    this.setState({
-      remoteStreams: new_State
-    });
-    // this.video.srcObject = event.stream;
-  };
+  // handleRemoteStreamAdded = (clientId) => event => {
+  //   console.log("Remote stream added.");
+  //   let new_State = Object.assign({ [clientId]: event.stream}, this.state.remoteStreams, )
+  //   this.setState({
+  //     remoteStreams: new_State
+  //   });
+  //   // this.video.srcObject = event.stream;
+  // };
 
-  handleRemoteStreamRemoved = (clientId) => event => {
-    console.log("Remote stream removed. Event: ", event);
-    var remoteStreams = this.state.remoteStreams;
-    delete remoteStreams[clientId];
-    this.setState({ remoteStreams });
-  };
+  // handleRemoteStreamRemoved = (clientId) => event => {
+  //   console.log("Remote stream removed. Event: ", event);
+  //   var remoteStreams = this.state.remoteStreams;
+  //   delete remoteStreams[clientId];
+  //   this.setState({ remoteStreams });
+  // };
 
-  handleCreateOfferError(event) {
-    console.log("createOffer() error: ", event);
-  }
+  // handleCreateOfferError(event) {
+  //   console.log("createOffer() error: ", event);
+  // }
 
-  doCall = clientId => {
-    console.log("Sending offer to peer");
+  // doCall = clientId => {
+  //   console.log("Sending offer to peer");
 
-    this.state.connectionList[clientId].createOffer(
-      this.setLocalAndSendMessage(clientId),
-      this.handleCreateOfferError
-    );
-  };
+  //   this.state.connectionList[clientId].createOffer(
+  //     this.setLocalAndSendMessage(clientId),
+  //     this.handleCreateOfferError
+  //   );
+  // };
 
-  setLocalAndSendMessage = clientId => sessionDescription => {
-    console.log("set local description for: ", clientId);
-    this.state.connectionList[clientId].setLocalDescription(sessionDescription);
-    console.log("setLocalAndSendMessage sending message", sessionDescription);
-    this.state.client.sendMessage(sessionDescription);
-  };
+  // setLocalAndSendMessage = clientId => sessionDescription => {
+  //   console.log("set local description for: ", clientId);
+  //   this.state.connectionList[clientId].setLocalDescription(sessionDescription);
+  //   console.log("setLocalAndSendMessage sending message", sessionDescription);
+  //   this.state.client.sendMessage(sessionDescription);
+  // };
 
-  onCreateSessionDescriptionError(error) {
-    console.log("Failed to create session description: " + error.toString());
-    // trace("Failed to create session description: " + error.toString());
-  }
+  // onCreateSessionDescriptionError(error) {
+  //   console.log("Failed to create session description: " + error.toString());
+  //   // trace("Failed to create session description: " + error.toString());
+  // }
 
-  doAnswer = clientId => {
-    console.log("Sending answer to peer.");
-    this.state.connectionList[clientId]
-      .createAnswer()
-      .then(
-        this.setLocalAndSendMessage(clientId),
-        this.onCreateSessionDescriptionError
-      );
-  };
+  // doAnswer = clientId => {
+  //   console.log("Sending answer to peer.");
+  //   this.state.connectionList[clientId]
+  //     .createAnswer()
+  //     .then(
+  //       this.setLocalAndSendMessage(clientId),
+  //       this.onCreateSessionDescriptionError
+  //     );
+  // };
 
-  handleRemoteHangup = clientId => {
-    console.log("Session terminated.");
-    this.stop(clientId);
-  };
+  // handleRemoteHangup = clientId => {
+  //   console.log("Session terminated.");
+  //   this.stop(clientId);
+  // };
 
-  stop = clientId => {
-    var pc = this.state.connectionList[clientId];
-    if (pc) {
-      pc.close();
-      var connectionList = this.state.connectionList;
-      delete connectionList[clientId];
-      this.setState({ connectionList });
-    }
-  };
+  // stop = clientId => {
+  //   var pc = this.state.connectionList[clientId];
+  //   if (pc) {
+  //     pc.close();
+  //     var connectionList = this.state.connectionList;
+  //     delete connectionList[clientId];
+  //     this.setState({ connectionList });
+  //   }
+  // };
 
-  // This client receives a message
-  messageHandler = message => {
-    console.log("Client received message:", message);
-    if (message.type === "joined") {
-      if (!this.state.connectionList[message.clientId]) {
-        this.maybeStart(message.clientId);
-        this.doCall(message.clientId);
-      }
-    } else if (message.type === "offer") {
-      if (!this.state.connectionList[message.clientId]) {
-        this.maybeStart(message.clientId);
+  // // This client receives a message
+  // messageHandler = message => {
+  //   console.log("Client received message:", message);
+  //   if (message.type === "joined") {
+  //     if (!this.state.connectionList[message.clientId]) {
+  //       this.maybeStart(message.clientId);
+  //       this.doCall(message.clientId);
+  //     }
+  //   } else if (message.type === "offer") {
+  //     if (!this.state.connectionList[message.clientId]) {
+  //       this.maybeStart(message.clientId);
 
-        this.state.connectionList[message.clientId].setRemoteDescription(
-          new RTCSessionDescription(message)
-        );
-        this.doAnswer(message.clientId);
-      }
-    } else if (message.type === "answer") {
-      if (
-        this.state.connectionList[message.clientId] &&
-        !this.state.connectionList[message.clientId].remoteDescription
-      ) {
-        this.state.connectionList[message.clientId].setRemoteDescription(
-          new RTCSessionDescription(message)
-        );
-      }
-    } else if (message.type === "candidate") {
-      var candidate = new RTCIceCandidate({
-        sdpMLineIndex: message.label,
-        candidate: message.candidate
-      });
-      if (this.state.connectionList[message.clientId]) {
-        this.state.connectionList[message.clientId].addIceCandidate(candidate);
-      }
-    } else if (message === "bye") {
-      this.handleRemoteHangup(message.clientId);
-    }
-  };
+  //       this.state.connectionList[message.clientId].setRemoteDescription(
+  //         new RTCSessionDescription(message)
+  //       );
+  //       this.doAnswer(message.clientId);
+  //     }
+  //   } else if (message.type === "answer") {
+  //     if (
+  //       this.state.connectionList[message.clientId] &&
+  //       !this.state.connectionList[message.clientId].remoteDescription
+  //     ) {
+  //       this.state.connectionList[message.clientId].setRemoteDescription(
+  //         new RTCSessionDescription(message)
+  //       );
+  //     }
+  //   } else if (message.type === "candidate") {
+  //     var candidate = new RTCIceCandidate({
+  //       sdpMLineIndex: message.label,
+  //       candidate: message.candidate
+  //     });
+  //     if (this.state.connectionList[message.clientId]) {
+  //       this.state.connectionList[message.clientId].addIceCandidate(candidate);
+  //     }
+  //   } else if (message === "bye") {
+  //     this.handleRemoteHangup(message.clientId);
+  //   }
+  // };
 
   render() {
-    console.log('remotestae', this.state.remoteStreams);
     return (
       <div id="container-main">
-        <div id="videos">
-          {/* <video
-            autoPlay
-            playsInline
-            ref={ref => {
-              this.video = ref;
-            }}
-          /> */}
+      <VideoStream client ={ this.state.client}/>
+        {/* <div id="videos">
           {Object.keys(this.state.remoteStreams).map(clientId => (
             <video
               key={clientId}
@@ -385,7 +327,7 @@ class Chatroom extends React.Component {
               }}
             />
           ))}
-        </div>
+        </div> */}
         <div id="container-left">
           <h3 id="room-name">{this.state.chatroom}</h3>
           <ul id="members-list">
@@ -446,7 +388,7 @@ class Chatroom extends React.Component {
         </div>
         <Modal
           isOpen={this.state.modalOpen}
-          style={modalStyle}
+          style={Variables.modalStyle}
           contentLabel="Username Modal"
         >
           <UsernameForm
