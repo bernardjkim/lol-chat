@@ -28,10 +28,6 @@ const mediaStreamConstraints = {
 var pcConfig = {
   iceServers: [
     {
-<<<<<<< HEAD
-      urls: "stun:stun.l.google.com:19302",
-
-=======
       urls: "stun:stun.l.google.com:19302"
     },
     {
@@ -44,7 +40,6 @@ var pcConfig = {
       ],
       username: "muazkh",
       credential: "muazkh"
->>>>>>> 4e89ad055881d19319f4e8d8a995378d4fd7da8a
     }
   ]
 };
@@ -231,11 +226,10 @@ class Chatroom extends React.Component {
   };
 
   createPeerConnection = clientId => {
-    let that = this;
     try {
-      var pc = new RTCPeerConnection(null);
+      var pc = new RTCPeerConnection(pcConfig);
       pc.onicecandidate = this.handleIceCandidate;
-      pc.onaddstream = this.handleRemoteStreamAdded(clientId, that);
+      pc.onaddstream = this.handleRemoteStreamAdded(clientId);
       pc.onremovestream = this.handleRemoteStreamRemoved(clientId);
 
       this.setState({
@@ -264,20 +258,16 @@ class Chatroom extends React.Component {
     }
   };
 
-  handleRemoteStreamAdded = (clientId, scope) => event => {
+  handleRemoteStreamAdded = (clientId) => event => {
     console.log("Remote stream added.");
-    debugger
-    scope.setState({
-      remoteStreams: {
-        ...scope.state.remoteStreams,
-        [clientId]: event.stream
-      }
+    let new_State = Object.assign({ [clientId]: event.stream}, this.state.remoteStreams, )
+    this.setState({
+      remoteStreams: new_State
     });
-    debugger
     // this.video.srcObject = event.stream;
   };
 
-  handleRemoteStreamRemoved = (clientId, scope) => event => {
+  handleRemoteStreamRemoved = (clientId) => event => {
     console.log("Remote stream removed. Event: ", event);
     var remoteStreams = this.state.remoteStreams;
     delete remoteStreams[clientId];
@@ -338,19 +328,19 @@ class Chatroom extends React.Component {
   messageHandler = message => {
     console.log("Client received message:", message);
     if (message.type === "joined") {
-      // if (!this.state.connectionList[message.clientId]) {
-      // }
-      this.maybeStart(message.clientId);
-      this.doCall(message.clientId);
+      if (!this.state.connectionList[message.clientId]) {
+        this.maybeStart(message.clientId);
+        this.doCall(message.clientId);
+      }
     } else if (message.type === "offer") {
-      // if (!this.state.connectionList[message.clientId]) {
+      if (!this.state.connectionList[message.clientId]) {
         this.maybeStart(message.clientId);
 
         this.state.connectionList[message.clientId].setRemoteDescription(
           new RTCSessionDescription(message)
         );
         this.doAnswer(message.clientId);
-      // }
+      }
     } else if (message.type === "answer") {
       if (
         this.state.connectionList[message.clientId] &&
@@ -374,6 +364,7 @@ class Chatroom extends React.Component {
   };
 
   render() {
+    console.log('remotestae', this.state.remoteStreams);
     return (
       <div id="container-main">
         <div id="videos">
