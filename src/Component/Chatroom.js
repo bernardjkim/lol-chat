@@ -30,6 +30,7 @@ var pcConfig = {
     {
       urls: "stun:stun.l.google.com:19302"
     },
+    // TODO: setup own TURN server
     {
       urls: [
         "turn:webrtcweb.com:7788", // coTURN 7788+8877
@@ -43,14 +44,6 @@ var pcConfig = {
     }
   ]
 };
-
-// var pcConfig = {
-//   iceServers: [
-//     {
-//       urls: "stun:stun.l.google.com:19302"
-//     }
-//   ]
-// };
 
 // Set up audio and video regardless of what devices are present.
 var sdpConstraints = {
@@ -77,8 +70,8 @@ class Chatroom extends React.Component {
         //    stream: remote stream
         // }
       },
+      // TODO: can we grab the remote stream from the PeerConnection object?
       remoteStreams: {},
-      videoRefs: {},
 
       // TOOD: move to separate file?
       //https://cloud.google.com/translate/docs/languages
@@ -111,7 +104,7 @@ class Chatroom extends React.Component {
     this.scrollToBottom();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState) {
     this.scrollToBottom();
   }
 
@@ -221,7 +214,6 @@ class Chatroom extends React.Component {
       console.log(">>>>>> creating peer connection");
       this.createPeerConnection(clientId);
       this.state.connectionList[clientId].addStream(this.state.localStream);
-      //this.doCall(clientId);
     }
   };
 
@@ -265,7 +257,6 @@ class Chatroom extends React.Component {
         [clientId]: event.stream
       }
     });
-    this.video.srcObject = event.stream;
   };
 
   handleRemoteStreamRemoved = clientId => event => {
@@ -368,23 +359,18 @@ class Chatroom extends React.Component {
     return (
       <div id="container-main">
         <div id="videos">
-          <video
-            autoPlay
-            playsInline
-            ref={ref => {
-              this.video = ref;
-            }}
-          />
-          {/* {Object.keys(this.state.remoteStreams).map(clientId => (
+          {Object.keys(this.state.remoteStreams).map(clientId => (
             <video
               key={clientId}
               autoPlay
               playsInline
               ref={ref => {
-                ref.srcObject = this.state.remoteStreams[clientId];
+                ref
+                  ? (ref.srcObject = this.state.remoteStreams[clientId])
+                  : (ref = null);
               }}
             />
-          ))} */}
+          ))}
         </div>
         <div id="container-left">
           <h3 id="room-name">{this.state.chatroom}</h3>
