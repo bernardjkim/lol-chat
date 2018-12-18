@@ -8,7 +8,6 @@ const fs = require("fs");
 
 const protocol = process.env.HTTPS === "true" ? "https" : "http";
 const host = process.env.HOST || "0.0.0.0";
-const port = parseInt(process.env.PORT, 10) + 1 || 3001;
 
 module.exports = function(proxy, allowedHost) {
   return {

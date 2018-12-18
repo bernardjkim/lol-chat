@@ -63,9 +63,7 @@
     "workbox-webpack-plugin": "3.6.3"
   },
   "scripts": {
-    "client": "node scripts/start.js",
-    "server": "node server/server.js",
-    "start": "concurrently 'npm run server' 'npm run client'",
+    "start": "node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js"
   },

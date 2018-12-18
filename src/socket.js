@@ -3,9 +3,15 @@ import io from "socket.io-client";
 export default function() {
   const socket = io();
 
-  function registerHandler(onMessageReceived, onMembersReceived) {
-    socket.on("chat-message", onMessageReceived);
+  // TODO: probably want to allow handlers to be registered for any message type we give it
+  function registerHandler(
+    onChatMessageReceived,
+    onMembersReceived,
+    onMessageReceived
+  ) {
+    socket.on("chat-message", onChatMessageReceived);
     socket.on("members", onMembersReceived);
+    socket.on("message", onMessageReceived);
   }
 
   function setLanguage(language) {
@@ -19,6 +25,7 @@ export default function() {
   function unregisterHandler() {
     socket.off("chat-message");
     socket.off("members");
+    socket.off("message");
   }
 
   function message(msg, chatroomName) {
@@ -28,12 +35,23 @@ export default function() {
   function joinRoom(chatroomName) {
     socket.emit("join", chatroomName);
   }
+
+  function sendMessage(message) {
+    console.log("Client sending message: ", message);
+    socket.emit("message", message);
+  }
+
+  window.onbeforeunload = function() {
+    sendMessage("bye");
+  };
+
   return {
     registerHandler,
     unregisterHandler,
     message,
     setUsername,
     setLanguage,
-    joinRoom
+    joinRoom,
+    sendMessage
   };
 }

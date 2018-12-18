@@ -1,19 +1,12 @@
 const socketIO = require("socket.io");
+// const os = require("os");
+
 const makeHandlers = require("./handlers");
 const ClientManager = require("./clientManager");
 const ChatroomManager = require("./chatroomManager");
 
 const clientManager = ClientManager();
 const chatroomManager = ChatroomManager();
-
-const names = [
-  "Donald Trump",
-  "Barack Obama",
-  "George Bush",
-  "Bill Clinton",
-  "Richard Nixon",
-  "Abraham Lincoln"
-];
 
 module.exports = function(server) {
   const io = socketIO.listen(server);
@@ -31,9 +24,7 @@ module.exports = function(server) {
     } = makeHandlers(client, clientManager, chatroomManager);
     console.log("client connected: ", client.id);
 
-    var randomNum = Math.floor(Math.random() * 6);
-    handleRegister(names[randomNum]);
-    // handleJoin("default");
+    handleRegister("default");
 
     client.on("register", handleRegister);
 
@@ -48,6 +39,26 @@ module.exports = function(server) {
     client.on("chatrooms", handleGetChatrooms);
 
     client.on("availableUsers", handleGetAvailableUsers);
+
+    client.on("message", function(message) {
+      message.clientId = client.id;
+      console.log("Client: ", client.id, " said: ", message);
+      // for a real app, would be room-only (not broadcast)
+      client.broadcast.emit("message", message);
+    });
+
+    // NOTE: not sure what this is used for ???
+    // client.on("ipaddr", function() {
+    //   console.log("ipaddr msg received");
+    //   var ifaces = os.networkInterfaces();
+    //   for (var dev in ifaces) {
+    //     ifaces[dev].forEach(function(details) {
+    //       if (details.family === "IPv4" && details.address !== "127.0.0.1") {
+    //         socket.emit("ipaddr", details.address);
+    //       }
+    //     });
+    //   }
+    // });
 
     client.on("disconnect", function() {
       console.log("client disconnect...", client.id);
