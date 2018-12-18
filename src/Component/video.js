@@ -193,7 +193,9 @@ class VideoStream extends React.Component {
                         autoPlay
                         playsInline
                         ref={ref => {
-                            ref.srcObject = this.state.remoteStreams[clientId];
+                            ref
+                            ? (ref.srcObject = this.state.remoteStreams[clientId])
+                            : (ref = null);
                         }}
                         />
                     ))}

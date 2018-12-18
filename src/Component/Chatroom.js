@@ -50,7 +50,7 @@ class Chatroom extends React.Component {
     this.scrollToBottom();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState) {
     this.scrollToBottom();
   }
 
