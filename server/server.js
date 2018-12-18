@@ -1,5 +1,5 @@
 const socketIO = require("socket.io");
-const os = require("os");
+// const os = require("os");
 
 const makeHandlers = require("./handlers");
 const ClientManager = require("./clientManager");
@@ -26,8 +26,6 @@ module.exports = function(server) {
 
     handleRegister("default");
 
-    client.broadcast.emit("message", "test");
-
     client.on("register", handleRegister);
 
     client.on("join", handleJoin);
@@ -45,20 +43,22 @@ module.exports = function(server) {
     client.on("message", function(message) {
       console.log("Client said: ", message);
       // for a real app, would be room-only (not broadcast)
+      message.clientId = client.id;
       client.broadcast.emit("message", message);
     });
 
-    client.on("ipaddr", function() {
-      console.log("ipaddr");
-      var ifaces = os.networkInterfaces();
-      for (var dev in ifaces) {
-        ifaces[dev].forEach(function(details) {
-          if (details.family === "IPv4" && details.address !== "127.0.0.1") {
-            socket.emit("ipaddr", details.address);
-          }
-        });
-      }
-    });
+    // NOTE: not sure what this is used for ???
+    // client.on("ipaddr", function() {
+    //   console.log("ipaddr");
+    //   var ifaces = os.networkInterfaces();
+    //   for (var dev in ifaces) {
+    //     ifaces[dev].forEach(function(details) {
+    //       if (details.family === "IPv4" && details.address !== "127.0.0.1") {
+    //         socket.emit("ipaddr", details.address);
+    //       }
+    //     });
+    //   }
+    // });
 
     client.on("disconnect", function() {
       console.log("client disconnect...", client.id);

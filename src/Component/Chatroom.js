@@ -52,8 +52,14 @@ class Chatroom extends React.Component {
       modalOpen: true,
       localStream: false,
       isStarted: false,
-      // NOTE: is pc mutable? is that a problem to store it as a state variable?
-      pc: false,
+      connectionList: {
+        // [id]: {
+        //    pc: PeerConnection,
+        //    stream: remote stream
+        // }
+      },
+      remoteStreams: {},
+      videoRefs: {},
 
       // TOOD: move to separate file?
       //https://cloud.google.com/translate/docs/languages
@@ -187,33 +193,29 @@ class Chatroom extends React.Component {
   gotStream = stream => {
     console.log("Adding local stream.");
     this.setState({ localStream: stream });
-    // this.state.client.sendMessage("got user media");
-    // this.maybeStart();
+    this.state.client.sendMessage({ type: "joined" });
   };
 
-  maybeStart = () => {
+  maybeStart = clientId => {
     console.log(">>>>>>> maybeStart() ", this.state.localStream);
     if (this.state.localStream) {
       console.log(">>>>>> creating peer connection");
-      this.createPeerConnection();
-
-
-      var pc = this.state.pc;
-      pc.addStream(this.state.localStream);
-      this.setState({ pc, isStarted: true });
-
-      this.doCall();
+      this.createPeerConnection(clientId);
+      this.state.connectionList[clientId].addStream(this.state.localStream);
+      this.doCall(clientId);
     }
   };
 
-  createPeerConnection = () => {
+  createPeerConnection = clientId => {
     try {
       var pc = new RTCPeerConnection(pcConfig);
       pc.onicecandidate = this.handleIceCandidate;
-      pc.onaddstream = this.handleRemoteStreamAdded;
-      pc.onremovestream = this.handleRemoteStreamRemoved;
+      pc.onaddstream = this.handleRemoteStreamAdded(clientId);
+      pc.onremovestream = this.handleRemoteStreamRemoved(clientId);
 
-      this.setState({ pc });
+      this.setState({
+        connectionList: { ...this.state.connectionList, [clientId]: pc }
+      });
       console.log("Created RTCPeerConnnection");
     } catch (e) {
 
@@ -237,35 +239,39 @@ class Chatroom extends React.Component {
     }
   };
 
-  handleRemoteStreamAdded = event => {
+  handleRemoteStreamAdded = clientId => event => {
     console.log("Remote stream added.");
-    this.setState({ remoteStream: event.stream });
-    this.video.srcObject = event.stream;
-    // this.state.remoteStream = event.stream;
-    // remoteVideo.srcObject = remoteStream;
+    this.setState({
+      remoteStreams: {
+        ...this.state.remoteStreams,
+        [clientId]: event.stream
+      }
+    });
+    // this.video.srcObject = event.stream;
   };
 
-  handleRemoteStreamRemoved(event) {
+  handleRemoteStreamRemoved = clientId => event => {
     console.log("Remote stream removed. Event: ", event);
-  }
+    var remoteStreams = this.state.remoteStreams;
+    delete remoteStreams[clientId];
+    this.setState({ remoteStreams });
+  };
 
   handleCreateOfferError(event) {
     console.log("createOffer() error: ", event);
   }
 
-  doCall = () => {
+  doCall = clientId => {
     console.log("Sending offer to peer");
-    this.state.pc.createOffer(
-      this.setLocalAndSendMessage,
+
+    this.state.connectionList[clientId].createOffer(
+      this.setLocalAndSendMessage(clientId),
       this.handleCreateOfferError
     );
   };
 
-  setLocalAndSendMessage = sessionDescription => {
-    var pc = this.state.pc;
-    pc.setLocalDescription(sessionDescription);
-    this.setState({ pc });
-
+  setLocalAndSendMessage = clientId => sessionDescription => {
+    this.state.connectionList[clientId].setLocalDescription(sessionDescription);
     console.log("setLocalAndSendMessage sending message", sessionDescription);
     this.state.client.sendMessage(sessionDescription);
   };
@@ -275,91 +281,85 @@ class Chatroom extends React.Component {
     // trace("Failed to create session description: " + error.toString());
   }
 
-  doAnswer = () => {
+  doAnswer = clientId => {
     console.log("Sending answer to peer.");
-    this.state.pc
+    this.state.connectionList[clientId]
       .createAnswer()
-      .then(this.setLocalAndSendMessage, this.onCreateSessionDescriptionError);
+      .then(
+        this.setLocalAndSendMessage(clientId),
+        this.onCreateSessionDescriptionError
+      );
   };
 
-  handleRemoteHangup = () => {
+  handleRemoteHangup = clientId => {
     console.log("Session terminated.");
-    this.stop();
+    this.stop(clientId);
   };
 
-  stop = () => {
-    var pc = this.state.pc;
+  stop = clientId => {
+    var pc = this.state.connectionList[clientId];
     if (pc) {
       pc.close();
-      pc = false;
-      this.setState({ pc, isStarted: false });
+      this.setState({
+        connectionList: { ...this.state.connectionList, [clientId]: false }
+      });
     }
   };
 
   // This client receives a message
   messageHandler = message => {
     console.log("Client received message:", message);
-    var pc;
-    if (message === "got user media") {
-      // this.maybeStart();
-    } else if (message === "test") {
-      if (!this.state.isStarted) {
-        this.maybeStart();
+    if (message.type === "joined") {
+      if (!this.state.connectionList[message.clientId]) {
+        this.maybeStart(message.clientId);
       }
     } else if (message.type === "offer") {
-      if (!this.state.isStarted) {
-        this.maybeStart();
-      } 
+      if (!this.state.connectionList[message.clientId]) {
+        this.maybeStart(message.clientId);
 
-
-      pc = this.state.pc;
-      pc.setRemoteDescription(new RTCSessionDescription(message));
-      this.setState({ pc });
-      this.doAnswer();
+        this.state.connectionList[message.clientId].setRemoteDescription(
+          new RTCSessionDescription(message)
+        );
+        this.doAnswer(message.clientId);
+      }
     } else if (message.type === "answer") {
-      pc = this.state.pc;
-      pc.setRemoteDescription(new RTCSessionDescription(message));
-      this.setState({ pc });
+      if (
+        this.state.connectionList[message.clientId] &&
+        !this.state.connectionList[message.clientId].remoteDescription
+      ) {
+        this.state.connectionList[message.clientId].setRemoteDescription(
+          new RTCSessionDescription(message)
+        );
+      }
     } else if (message.type === "candidate") {
       var candidate = new RTCIceCandidate({
         sdpMLineIndex: message.label,
         candidate: message.candidate
       });
-      pc = this.state.pc;
-      pc.addIceCandidate(candidate);
-      this.setState({ pc });
+      if (this.state.connectionList[message.clientId]) {
+        this.state.connectionList[message.clientId].addIceCandidate(candidate);
+      }
     } else if (message === "bye") {
-      this.handleRemoteHangup();
+      this.handleRemoteHangup(message.clientId);
     }
   };
 
   render() {
+    console.log("TEST");
+    console.log(this.state.remoteStreams);
     return (
       <div id="container-main">
         <div id="videos">
-          {/* {this.state.localStream && (
+          {Object.keys(this.state.remoteStreams).map(clientId => (
             <video
+              key={clientId}
               autoPlay
               playsInline
-              // ref={video1 => {
-              //   video1.srcObject = this.state.localStream;
-              // }}
+              ref={ref => {
+                ref.srcObject = this.state.remoteStreams[clientId];
+              }}
             />
-          )} */}
-          {this.state.remoteStream && (
-          <video
-            autoPlay
-            playsInline
-            ref={video => {
-              this.video = video;
-            }}
-            // ref={video2 => {
-            //   video2.srcObject = this.state.remoteStream;
-            // }}
-          />
-          )}
-          
-          {/* )} */}
+          ))}
         </div>
         <div id="container-left">
           <h3 id="room-name">{this.state.chatroom}</h3>
