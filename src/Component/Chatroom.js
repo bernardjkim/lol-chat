@@ -207,10 +207,11 @@ class Chatroom extends React.Component {
   };
 
   createPeerConnection = clientId => {
+    let that = this;
     try {
       var pc = new RTCPeerConnection(pcConfig);
       pc.onicecandidate = this.handleIceCandidate;
-      pc.onaddstream = this.handleRemoteStreamAdded(clientId);
+      pc.onaddstream = this.handleRemoteStreamAdded(clientId, that);
       pc.onremovestream = this.handleRemoteStreamRemoved(clientId);
 
       this.setState({
@@ -239,18 +240,20 @@ class Chatroom extends React.Component {
     }
   };
 
-  handleRemoteStreamAdded = clientId => event => {
+  handleRemoteStreamAdded = (clientId, scope) => event => {
     console.log("Remote stream added.");
-    this.setState({
+    debugger
+    scope.setState({
       remoteStreams: {
-        ...this.state.remoteStreams,
+        ...scope.state.remoteStreams,
         [clientId]: event.stream
       }
     });
-    this.video.srcObject = event.stream;
+    debugger
+    // this.video.srcObject = event.stream;
   };
 
-  handleRemoteStreamRemoved = clientId => event => {
+  handleRemoteStreamRemoved = (clientId, scope) => event => {
     console.log("Remote stream removed. Event: ", event);
     var remoteStreams = this.state.remoteStreams;
     delete remoteStreams[clientId];
@@ -311,19 +314,19 @@ class Chatroom extends React.Component {
   messageHandler = message => {
     console.log("Client received message:", message);
     if (message.type === "joined") {
-      if (!this.state.connectionList[message.clientId]) {
-        this.maybeStart(message.clientId);
-        this.doCall(message.clientId);
-      }
+      // if (!this.state.connectionList[message.clientId]) {
+      // }
+      this.maybeStart(message.clientId);
+      this.doCall(message.clientId);
     } else if (message.type === "offer") {
-      if (!this.state.connectionList[message.clientId]) {
+      // if (!this.state.connectionList[message.clientId]) {
         this.maybeStart(message.clientId);
 
         this.state.connectionList[message.clientId].setRemoteDescription(
           new RTCSessionDescription(message)
         );
         this.doAnswer(message.clientId);
-      }
+      // }
     } else if (message.type === "answer") {
       if (
         this.state.connectionList[message.clientId] &&
@@ -350,14 +353,14 @@ class Chatroom extends React.Component {
     return (
       <div id="container-main">
         <div id="videos">
-          <video
+          {/* <video
             autoPlay
             playsInline
             ref={ref => {
               this.video = ref;
             }}
-          />
-          {/* {Object.keys(this.state.remoteStreams).map(clientId => (
+          /> */}
+          {Object.keys(this.state.remoteStreams).map(clientId => (
             <video
               key={clientId}
               autoPlay
@@ -366,7 +369,7 @@ class Chatroom extends React.Component {
                 ref.srcObject = this.state.remoteStreams[clientId];
               }}
             />
-          ))} */}
+          ))}
         </div>
         <div id="container-left">
           <h3 id="room-name">{this.state.chatroom}</h3>
