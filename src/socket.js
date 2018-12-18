@@ -4,20 +4,26 @@ export default function() {
   const socket = io();
 
   // TODO: probably want to allow handlers to be registered for any message type we give it
-  function registerHandler(
-    onChatMessageReceived,
-    onMembersReceived,
-    onMessageReceived
-  ) {
+  // function registerHandler(
+  //   onChatMessageReceived,
+  //   onMembersReceived,
+  //   onMessageReceived
+  // ) {
+  // }
+  function chatMessageHandler(onChatMessageReceived) {
     socket.on("chat-message", onChatMessageReceived);
+  }
+  function memberHandler(onMembersReceived) {
     socket.on("members", onMembersReceived);
+  }
+  function videoHandler(onMessageReceived) {
     socket.on("message", onMessageReceived);
   }
-
+  
   function setLanguage(language) {
     socket.emit("language", language);
   }
-
+  
   function setUsername(username) {
     socket.emit("register", username);
   }
@@ -46,7 +52,9 @@ export default function() {
   };
 
   return {
-    registerHandler,
+    chatMessageHandler,
+    memberHandler,
+    videoHandler,
     unregisterHandler,
     message,
     setUsername,

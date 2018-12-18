@@ -4,7 +4,7 @@ class VideoStream extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            localStream: false,
+            localStream: this.props.localStream ? this.props.localStream : false,
             isStarted: false,
             connectionList: {
                 // [id]: {
@@ -18,22 +18,22 @@ class VideoStream extends React.Component {
 
     }
 
-      gotStream = stream => {
-          console.log("Adding local stream.");
-          this.setState({
-              localStream: stream
-          });
-          this.props.client.sendMessage({
-              type: "joined"
-          });
-      };
+  componentWillReceiveProps(nextProps) {
+      if (nextProps.client) {
+          nextProps.client.videoHandler(this.messageHandler);
+      } 
+      if (nextProps.localStream !== this.props.localStream) {
+          this.setState({localStream: nextProps.localStream});
+      }
+
+  }
+
       maybeStart = clientId => {
           console.log(">>>>>>> maybeStart() ", this.state.localStream);
           if (this.state.localStream && !this.state.connectionList[clientId]) {
               console.log(">>>>>> creating peer connection");
               this.createPeerConnection(clientId);
               this.state.connectionList[clientId].addStream(this.state.localStream);
-              //this.doCall(clientId);
           }
       };
 
@@ -150,6 +150,7 @@ class VideoStream extends React.Component {
           if (message.type === "joined") {
               if (!this.state.connectionList[message.clientId]) {
                   this.maybeStart(message.clientId);
+    
                   this.doCall(message.clientId);
               }
           } else if (message.type === "offer") {
