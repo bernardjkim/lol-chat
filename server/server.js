@@ -41,9 +41,9 @@ module.exports = function(server) {
     client.on("availableUsers", handleGetAvailableUsers);
 
     client.on("message", function(message) {
+      message.clientId = client.id;
       console.log("Client: ", client.id, " said: ", message);
       // for a real app, would be room-only (not broadcast)
-      message.clientId = client.id;
       client.broadcast.emit("message", message);
     });
 
