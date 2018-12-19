@@ -4,8 +4,8 @@ import Modal from "react-modal";
 import socket from "../socket";
 import UsernameForm from "./UsernameForm";
 import Dropdown from "./Dropdown";
-import VideoStream from './video';
-import Variables from './variable_utils';
+import VideoStream from "./video";
+import Variables from "./variable_utils";
 
 class Chatroom extends React.Component {
   constructor(props) {
@@ -18,31 +18,7 @@ class Chatroom extends React.Component {
       username: "",
       msg: "",
       modalOpen: true,
-
-      // TOOD: move to separate file?
-      //https://cloud.google.com/translate/docs/languages
-      language: [
-        {
-          id: 0,
-          title: "EN",
-          selected: true
-        },
-        {
-          id: 1,
-          title: "KO",
-          selected: false
-        },
-        {
-          id: 2,
-          title: "JA",
-          selected: false
-        },
-        {
-          id: 3,
-          title: "ZU",
-          selected: false
-        }
-      ]
+      language: "en"
     };
   }
 
@@ -51,27 +27,13 @@ class Chatroom extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    this.scrollToBottom();
+    if (prevState.messages !== this.state.messages) {
+      this.scrollToBottom();
+    }
   }
 
-  toggleSelected = id => {
-    let temp = JSON.parse(JSON.stringify(this.state.language));
-    temp[id].selected = !temp[id].selected;
-    this.setState({
-      language: temp
-    });
-  };
-
   resetThenSet = id => {
-    let temp = JSON.parse(JSON.stringify(this.state.language));
-    temp.forEach(item => (item.selected = false));
-    temp[id].selected = true;
-    this.setState({
-      language: temp
-    });
-
-    // send language pref to server
-    this.state.client.setLanguage(temp[id].title);
+    this.setState({ language: id });
   };
 
   // append msg to list our list of messages
@@ -98,6 +60,7 @@ class Chatroom extends React.Component {
     if (this.state.msg === "") return;
 
     if (this.state.msg.startsWith("/j")) {
+      // command to join a room
       var name = this.state.msg.split(" ")[1];
       this.state.client.joinRoom(name);
       this.setState({ chatroom: name });
@@ -154,7 +117,10 @@ class Chatroom extends React.Component {
   render() {
     return (
       <div id="container-main">
-      <VideoStream client ={ this.state.client} localStream={this.state.localStream}/>
+        <VideoStream
+          client={this.state.client}
+          localStream={this.state.localStream}
+        />
         <div id="container-left">
           <h3 id="room-name">{this.state.chatroom}</h3>
           <ul id="members-list">
@@ -169,19 +135,6 @@ class Chatroom extends React.Component {
         <div id="container-right">
           <div id="container-messages">
             <ul id="message-list">
-              {/* {this.state.messages.map((msg, key) => {
-                const yourUsername =
-                  this.state.username === msg.username
-                    ? "your-username"
-                    : "other-username";
-
-                return (
-                  <div key={key} className="message-container">
-                    <div className={yourUsername}>{msg.username}</div>
-                    <div className="message">{msg.message}</div>
-                  </div>
-                );
-              })} */}
               {this.state.messages.map((msg, key) => (
                 <li key={key} className="message">
                   {msg.username}: {msg.msg}
@@ -198,8 +151,7 @@ class Chatroom extends React.Component {
             <div id="language-selector">
               <Dropdown
                 id="language-selector"
-                title="EN"
-                list={this.state.language}
+                title={this.state.language}
                 resetThenSet={this.resetThenSet}
               />
             </div>

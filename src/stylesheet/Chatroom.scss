@@ -42,8 +42,8 @@ video {
   overflow: auto;
 }
 
-#members-list {
-}
+// #members-list {
+// }
 
 .message {
   list-style: none;
@@ -73,78 +73,4 @@ video {
 
 #submit-message {
   width: 10%;
-}
-
-.dd-wrapper {
-  height: 100%;
-  width: 100px;
-  background-color: #01e2ad;
-}
-
-.dd-wrapper ul {
-  background-color: #01e2ad;
-  position: absolute;
-  bottom: 45px;
-  padding: 0;
-  width: 100px;
-}
-.dd-wrapper ul li {
-  position: relative;
-  list-style: none;
-}
-
-#messages {
-  margin: 0;
-  width: 65%;
-  height: 500px;
-  overflow: auto;
-  list-style-type: none;
-  background: url("https://vignette.wikia.nocookie.net/leagueoflegends/images/0/0a/Pyke_Promo_01.png/revision/latest/scale-to-width-down/640?cb=20180515033457");
-  background-size: cover;
-  color: black;
-  div {
-    word-wrap: break-word;
-    max-width: 1060px;
-    color: white;
-    margin: 3px;
-    margin-right: 10px;
-    font-weight: 500;
-  }
-}
-
-#message-bar {
-  width: $message-width - 100px;
-  font-weight: 500;
-  font-size: 30px;
-  height: 40px;
-}
-
-.form-container {
-  display: flex;
-  border: 2px solid #2d898b;
-}
-#send-button {
-  box-sizing: border-box;
-  background-color: #88ccf1;
-  padding: 10px;
-  width: 130px;
-  height: 46px;
-  font-size: 20px;
-  font-weight: 400;
-  color: white;
-}
-
-.your-username {
-  color: rebeccapurple !important;
-  margin: 10px;
-}
-.other-username {
-  color: yellow !important;
-  margin: 10px;
-}
-
-.message-container {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
 }
