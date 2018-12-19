@@ -10,29 +10,34 @@ export default function() {
   //   onMessageReceived
   // ) {
   // }
-  function chatMessageHandler(onChatMessageReceived) {
-    socket.on("chat-message", onChatMessageReceived);
+  function registerHandler(type, handler) {
+    socket.on(type, handler);
   }
-  function memberHandler(onMembersReceived) {
-    socket.on("members", onMembersReceived);
-  }
+
+  // function chatMessageHandler(onChatMessageReceived) {
+  //   socket.on("chat-message", onChatMessageReceived);
+  // }
+  // function memberHandler(onMembersReceived) {
+  //   socket.on("members", onMembersReceived);
+  // }
   function videoHandler(onMessageReceived) {
     socket.on("message", onMessageReceived);
   }
-  
+
   function setLanguage(language) {
     socket.emit("language", language);
   }
-  
+
   function setUsername(username) {
     socket.emit("register", username);
   }
 
-  function unregisterHandler() {
-    socket.off("chat-message");
-    socket.off("members");
-    socket.off("message");
-  }
+  // NOTE: is it important to unregister the handlers?
+  // function unregisterHandler() {
+  //   socket.off("chat-message");
+  //   socket.off("members");
+  //   socket.off("message");
+  // }
 
   function message(msg, chatroomName) {
     socket.emit("chat-message", { chatroomName, msg });
@@ -52,10 +57,11 @@ export default function() {
   };
 
   return {
-    chatMessageHandler,
-    memberHandler,
+    registerHandler,
+    // chatMessageHandler,
+    // memberHandler,
     videoHandler,
-    unregisterHandler,
+    // unregisterHandler,
     message,
     setUsername,
     setLanguage,

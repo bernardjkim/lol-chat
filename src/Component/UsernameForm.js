@@ -17,9 +17,8 @@ class UsernameForm extends React.Component {
     e.preventDefault();
     let username = this.state.username;
     if (username.length > 1 && username.length < 20) {
-      this.props.closeModal();
+      this.props.closeModal(this.state.username);
       this.errors = null;
-      this.props.setUsername(this.state.username);
     } else {
       this.setState({ errors: "Username Should be 2 to 19 characters !" });
     }

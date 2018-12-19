@@ -34,7 +34,10 @@ module.exports = function(server) {
 
     client.on("leave", handleLeave);
 
-    client.on("chat-message", handleMessage);
+    client.on("chat-message", function(message) {
+      console.log("Client: ", client.id, " said: ", message);
+      handleMessage(message);
+    });
 
     client.on("chatrooms", handleGetChatrooms);
 
