@@ -18,7 +18,7 @@ class Dropdown extends React.Component {
 
   selectItem = id => {
     this.toggleList();
-    this.props.resetThenSet(id);
+    this.props.setLanguage(id);
   };
 
   toggleList = () => {
@@ -32,7 +32,11 @@ class Dropdown extends React.Component {
     const { title } = this.props;
     return (
       <div className="dd-wrapper">
-        <div className="dd-header" onClick={() => this.toggleList()}>
+        {/* 
+        NOTE: currently disabled translation feature.
+        <div className="dd-header" onClick={() => this.toggleList()}> 
+        */}
+        <div className="dd-header">
           <div className="dd-header-title">{title}</div>
         </div>
         {listOpen && (

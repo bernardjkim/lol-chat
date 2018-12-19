@@ -32,7 +32,7 @@ class Chatroom extends React.Component {
     }
   }
 
-  resetThenSet = id => {
+  setLanguage = id => {
     this.setState({ language: id });
   };
 
@@ -152,7 +152,7 @@ class Chatroom extends React.Component {
               <Dropdown
                 id="language-selector"
                 title={this.state.language}
-                resetThenSet={this.resetThenSet}
+                setLanguage={this.setLanguage}
               />
             </div>
             <form id="form-message" onSubmit={this.handleSubmit}>
