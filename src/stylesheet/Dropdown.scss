@@ -1,0 +1,22 @@
+.dd-wrapper {
+  height: 100%;
+  width: 100px;
+  background-color: #01e2ad;
+}
+
+.dd-wrapper ul {
+  background-color: #01e2ad;
+  position: absolute;
+  bottom: 45px;
+  padding: 0;
+  width: 100px;
+}
+.dd-wrapper ul li {
+  position: relative;
+  list-style: none;
+}
+
+.dd-list {
+  overflow: auto;
+  height: 100px;
+}

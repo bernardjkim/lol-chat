@@ -4,8 +4,9 @@ import Modal from "react-modal";
 import socket from "../socket";
 import UsernameForm from "./UsernameForm";
 import Dropdown from "./Dropdown";
-import VideoStream from './video';
-import Variables from './variable_utils';
+import VideoStream from "./video";
+import getMedia from "./media";
+import Variables from "./variable_utils";
 
 class Chatroom extends React.Component {
   constructor(props) {
@@ -18,76 +19,34 @@ class Chatroom extends React.Component {
       username: "",
       msg: "",
       modalOpen: true,
-
-      // TOOD: move to separate file?
-      //https://cloud.google.com/translate/docs/languages
-      language: [
-        {
-          id: 0,
-          title: "EN",
-          selected: true
-        },
-        {
-          id: 1,
-          title: "KO",
-          selected: false
-        },
-        {
-          id: 2,
-          title: "JA",
-          selected: false
-        },
-        {
-          id: 3,
-          title: "ZU",
-          selected: false
-        }
-      ]
+      language: "en"
     };
   }
 
-  componentDidMount() {
-    this.scrollToBottom();
-  }
+  componentDidMount() {}
 
   componentDidUpdate(prevProps, prevState) {
-    this.scrollToBottom();
-  }
+    if (prevState.messages !== this.state.messages) {
+      /**
+       * https://stackoverflow.com/questions/37620694/how-to-scroll-to-bottom-in-react
+       * scroll to this.messagesEnd element ref
+       */
+      this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+    }
 
-  toggleSelected = id => {
-    let temp = JSON.parse(JSON.stringify(this.state.language));
-    temp[id].selected = !temp[id].selected;
-    this.setState({
-      language: temp
-    });
-  };
+    if (prevState.chatroom !== this.state.chatroom) {
+      // send join room msg to server
+      this.state.client.joinRoom(this.state.chatroomName);
+    }
 
-  resetThenSet = id => {
-    let temp = JSON.parse(JSON.stringify(this.state.language));
-    temp.forEach(item => (item.selected = false));
-    temp[id].selected = true;
-    this.setState({
-      language: temp
-    });
+    if (prevState.username !== this.state.username) {
+      this.connectToServer();
+    }
 
-    // send language pref to server
-    this.state.client.setLanguage(temp[id].title);
-  };
-
-  // append msg to list our list of messages
-  onMessageReceived = ({ msg, username }) => {
-    this.setState({
-      messages: [...this.state.messages, { username, msg }]
-    });
-  };
-
-  onMembersReceived = members => {
-    this.setState({ members });
-  };
-
-  // Close/ Open Modal for username
-  closeUsernameModal() {
-    this.setState({ modalOpen: false });
+    if (prevState.localStream !== this.state.localStream) {
+      // store local stream if successfully able to get media
+      this.state.client.sendMessage({ type: "joined" });
+    }
   }
 
   // send smg to server
@@ -95,66 +54,60 @@ class Chatroom extends React.Component {
     e.preventDefault();
 
     // ignore if empty input
-    if (this.state.msg === "") return;
+    if (this.state.msg === "") {
+      return;
+    }
 
+    // handle join room
     if (this.state.msg.startsWith("/j")) {
-      var name = this.state.msg.split(" ")[1];
-      this.state.client.joinRoom(name);
-      this.setState({ chatroom: name });
-    } else {
+      const chatroom = this.state.msg.split(" ")[1];
+      this.setState({ chatroom });
+    }
+
+    // handle send message
+    else {
       this.state.client.message(this.state.msg, this.state.chatroom);
     }
+
+    // clear msg
     this.setState({ msg: "" });
   };
 
-  // join chatroom
-  joinChatroom = chatroomName => {
-    this.state.client.joinRoom(chatroomName);
+  registerHandlers = client => {
+    client.registerHandler("chat-message", message => {
+      const { username, msg } = message;
+      this.setState({
+        messages: [...this.state.messages, { username, msg }]
+      });
+    });
+
+    client.registerHandler("members", members => {
+      this.setState({ members });
+    });
   };
 
-  // connect socket and set username
-  setUsername(username) {
+  // try to connect to server
+  connectToServer = () => {
     // connect socket
     var client = socket();
-    client.chatMessageHandler(this.onMessageReceived);
-    client.memberHandler(this.onMembersReceived);
+    this.registerHandlers(client);
+    client.setUsername(this.state.username);
 
-    // set username
-    client.setUsername(username);
-    this.setState({ client, username, chatroom: "default" });
+    this.setState({ client });
 
-    // get media
-    this.getMedia();
-  }
-
-  handleChange = e => {
-    this.setState({ msg: e.target.value });
-  };
-
-  // https://stackoverflow.com/questions/37620694/how-to-scroll-to-bottom-in-react
-  scrollToBottom = () => {
-    this.messagesEnd.scrollIntoView({ behavior: "smooth" });
-  };
-
-  getMedia = () => {
-    navigator.mediaDevices
-      .getUserMedia(Variables.mediaStreamConstraints)
-      .then(this.gotStream)
-      .catch(function(e) {
-        alert("getUserMedia() error: " + e);
-      });
-  };
-
-  gotStream = stream => {
-    console.log("Adding local stream.");
-    this.setState({ localStream: stream });
-    this.state.client.sendMessage({ type: "joined" });
+    // attempt to get media access
+    getMedia(localStream => {
+      this.setState({ localStream });
+    });
   };
 
   render() {
     return (
       <div id="container-main">
-      <VideoStream client ={ this.state.client} localStream={this.state.localStream}/>
+        <VideoStream
+          client={this.state.client}
+          localStream={this.state.localStream}
+        />
         <div id="container-left">
           <h3 id="room-name">{this.state.chatroom}</h3>
           <ul id="members-list">
@@ -169,19 +122,6 @@ class Chatroom extends React.Component {
         <div id="container-right">
           <div id="container-messages">
             <ul id="message-list">
-              {/* {this.state.messages.map((msg, key) => {
-                const yourUsername =
-                  this.state.username === msg.username
-                    ? "your-username"
-                    : "other-username";
-
-                return (
-                  <div key={key} className="message-container">
-                    <div className={yourUsername}>{msg.username}</div>
-                    <div className="message">{msg.message}</div>
-                  </div>
-                );
-              })} */}
               {this.state.messages.map((msg, key) => (
                 <li key={key} className="message">
                   {msg.username}: {msg.msg}
@@ -198,15 +138,18 @@ class Chatroom extends React.Component {
             <div id="language-selector">
               <Dropdown
                 id="language-selector"
-                title="EN"
-                list={this.state.language}
-                resetThenSet={this.resetThenSet}
+                title={this.state.language}
+                setLanguage={id => {
+                  this.setState({ language: id });
+                }}
               />
             </div>
             <form id="form-message" onSubmit={this.handleSubmit}>
               <input
                 id="input-message"
-                onChange={this.handleChange}
+                onChange={evt => {
+                  this.setState({ msg: evt.target.value });
+                }}
                 value={this.state.msg}
               />
               <button id="submit-message">send</button>
@@ -219,8 +162,9 @@ class Chatroom extends React.Component {
           contentLabel="Username Modal"
         >
           <UsernameForm
-            setUsername={this.setUsername.bind(this)}
-            closeModal={this.closeUsernameModal.bind(this)}
+            closeModal={username => {
+              this.setState({ username, modalOpen: false });
+            }}
           />
         </Modal>
       </div>

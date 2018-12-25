@@ -1,4 +1,4 @@
-const translate = require("./translate");
+// const translate = require("./translate");
 
 module.exports = function(name) {
   const members = new Map();
@@ -7,10 +7,13 @@ module.exports = function(name) {
   // broadcast the message to the chatroom
   function broadcastMessage(message) {
     members.forEach(m => {
-      translate(message.msg, m.language).then(translation => {
-        message.msg = translation;
-        m.socket.emit("chat-message", message);
-      });
+      m.socket.emit("chat-message", message);
+
+      // NOTE: disabled translate for now... google translate api cost $$$
+      // translate(message.msg, m.language).then(translation => {
+      //   message.msg = translation;
+      //   m.socket.emit("chat-message", message);
+      // });
     });
   }
 

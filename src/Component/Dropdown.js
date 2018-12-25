@@ -1,31 +1,24 @@
 import React from "react";
-import FontAwesome from "react-fontawesome";
 import onClickOutside from "react-onclickoutside";
+
+import languages from "../languages";
 
 //https://github.com/dbilgili/Custom-ReactJS-Dropdown-Components
 class Dropdown extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      listOpen: false,
-      headerTitle: this.props.title
+      listOpen: false
     };
   }
 
   handleClickOutside(e) {
-    this.setState({
-      listOpen: false
-    });
+    this.setState({ listOpen: false });
   }
 
-  selectItem = (title, id) => {
-    this.setState(
-      {
-        headerTitle: title,
-        listOpen: false
-      },
-      this.props.resetThenSet(id)
-    );
+  selectItem = id => {
+    this.toggleList();
+    this.props.setLanguage(id);
   };
 
   toggleList = () => {
@@ -35,27 +28,26 @@ class Dropdown extends React.Component {
   };
 
   render() {
-    const { list } = this.props;
-    const { listOpen, headerTitle } = this.state;
+    const { listOpen } = this.state;
+    const { title } = this.props;
     return (
       <div className="dd-wrapper">
-        <div className="dd-header" onClick={() => this.toggleList()}>
-          <div className="dd-header-title">{headerTitle}</div>
-          {listOpen ? (
-            <FontAwesome name="angle-up" size="2x" />
-          ) : (
-            <FontAwesome name="angle-down" size="2x" />
-          )}
+        {/* 
+        NOTE: currently disabled translation feature.
+        <div className="dd-header" onClick={() => this.toggleList()}> 
+        */}
+        <div className="dd-header">
+          <div className="dd-header-title">{title}</div>
         </div>
         {listOpen && (
           <ul className="dd-list">
-            {list.map(item => (
+            {languages.map(language => (
               <li
                 className="dd-list-item"
-                key={item.id}
-                onClick={() => this.selectItem(item.title, item.id)}
+                key={language.id}
+                onClick={() => this.selectItem(language.id)}
               >
-                {item.title} {item.selected && <FontAwesome name="check" />}
+                {language.id}
               </li>
             ))}
           </ul>
