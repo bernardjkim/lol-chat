@@ -7,10 +7,14 @@ class UsernameForm extends React.Component {
       username: "",
       errors: null
     };
+    this.input = React.createRef();
   }
 
   onChange(e) {
     this.setState({ username: e.target.value });
+    if (this.state.errors && e.target.value.length > 1) {
+      this.setState({ errors: false });
+    }
   }
 
   handleSubmit(e) {
@@ -18,26 +22,35 @@ class UsernameForm extends React.Component {
     let username = this.state.username;
     if (username.length > 1 && username.length < 20) {
       this.props.closeModal(this.state.username);
-      this.errors = null;
     } else {
-      this.setState({ errors: "Username Should be 2 to 19 characters !" });
+      this.setState({ errors: true });
     }
   }
+
+  focusInput = () => {
+    if (this.input) this.input.focus();
+  };
 
   render() {
     let errors = this.state.errors;
     return (
-      <div>
-        {errors}
+      <div id="container-modal">
+        <p>Welcome to lol-chat!</p>
         <form onSubmit={this.handleSubmit.bind(this)} id="username-form">
           <input
             type="text"
+            ref={ref => {
+              this.input = ref;
+            }}
             id="username-input"
             onChange={this.onChange.bind(this)}
             value={this.state.username}
+            onBlur={this.focusInput}
             autoFocus
+            autoComplete="off"
+            className={errors ? "error" : null}
           />
-          <button>set username</button>
+          <button>Login</button>
         </form>
       </div>
     );
