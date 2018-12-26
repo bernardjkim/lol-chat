@@ -11,6 +11,13 @@ export default function() {
     socket.on("message", onMessageReceived);
   }
 
+  // NOTE: is it important to unregister the handlers?
+  // function unregisterHandler() {
+  //   socket.off("chat-message");
+  //   socket.off("members");
+  //   socket.off("message");
+  // }
+
   function setLanguage(language) {
     socket.emit("language", language);
   }
@@ -18,13 +25,6 @@ export default function() {
   function setUsername(username) {
     socket.emit("register", username);
   }
-
-  // NOTE: is it important to unregister the handlers?
-  // function unregisterHandler() {
-  //   socket.off("chat-message");
-  //   socket.off("members");
-  //   socket.off("message");
-  // }
 
   function message(msg, chatroomName) {
     socket.emit("chat-message", { chatroomName, msg });
@@ -35,12 +35,15 @@ export default function() {
   }
 
   function sendMessage(message) {
-    console.log("Client sending message: ", message);
     socket.emit("message", message);
   }
 
+  function sendPrivate(dest, message) {
+    socket.emit("private", dest, message);
+  }
+
   window.onbeforeunload = function() {
-    sendMessage("bye");
+    sendMessage({ type: "bye" });
   };
 
   return {
@@ -51,6 +54,7 @@ export default function() {
     setUsername,
     setLanguage,
     joinRoom,
-    sendMessage
+    sendMessage,
+    sendPrivate
   };
 }

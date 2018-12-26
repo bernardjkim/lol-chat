@@ -4,7 +4,7 @@ import Modal from "react-modal";
 import socket from "../socket";
 import UsernameForm from "./UsernameForm";
 import Dropdown from "./Dropdown";
-import VideoStream from "./video";
+import AudioStream from "./AudioStream";
 import getMedia from "./media";
 import Variables from "./variable_utils";
 
@@ -22,8 +22,6 @@ class Chatroom extends React.Component {
       language: "en"
     };
   }
-
-  componentDidMount() {}
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.messages !== this.state.messages) {
@@ -95,15 +93,15 @@ class Chatroom extends React.Component {
     this.setState({ client });
 
     // attempt to get media access
-    // getMedia(localStream => {
-    //   this.setState({ localStream });
-    // });
+    getMedia(localStream => {
+      this.setState({ localStream });
+    });
   };
 
   render() {
     return (
       <div id="container-main">
-        <VideoStream
+        <AudioStream
           client={this.state.client}
           localStream={this.state.localStream}
         />
@@ -155,17 +153,20 @@ class Chatroom extends React.Component {
             </form>
           </div>
         </div>
-        <Modal
-          isOpen={this.state.modalOpen}
-          style={Variables.modalStyle}
-          contentLabel="Username Modal"
-        >
-          <UsernameForm
-            closeModal={username => {
-              this.setState({ username, modalOpen: false });
-            }}
-          />
-        </Modal>
+        {!this.state.username && (
+          <Modal
+            id="modal-username"
+            isOpen={this.state.modalOpen}
+            style={Variables.modalStyle}
+            contentLabel="Username Modal"
+          >
+            <UsernameForm
+              closeModal={username => {
+                this.setState({ username, modalOpen: false });
+              }}
+            />
+          </Modal>
+        )}
       </div>
     );
   }
