@@ -155,9 +155,9 @@ class Chatroom extends React.Component {
         </div>
         {!this.state.username && (
           <Modal
-            id="modal-username"
+            className="modal-username"
             isOpen={this.state.modalOpen}
-            style={Variables.modalStyle}
+            // style={Variables.modalStyle}
             contentLabel="Username Modal"
           >
             <UsernameForm

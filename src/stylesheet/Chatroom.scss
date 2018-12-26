@@ -75,7 +75,8 @@ video {
   width: 10%;
 }
 
-#modal-username {
+.modal-username {
+  position: absolute;
   top: 50%;
   left: 50%;
   right: auto;
@@ -83,7 +84,10 @@ video {
   margin-right: -50%;
   transform: translate(-50%, -50%);
   width: 500px;
-  height: 400px;
+  // height: 400px;
   overflow: visible;
   border: 1px solid #e2dede;
+  border-radius: 5px;
+  background-color: #fdf6e5;
+  outline: none;
 }
