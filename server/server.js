@@ -15,7 +15,7 @@ module.exports = function(server) {
       handleRegister,
       handleJoin,
       handleLanguage,
-      handleLeave,
+      // handleLeave,
       handleMessage,
       handleDisconnect
     } = makeHandlers(socket, clientManager, chatroomManager);
@@ -31,7 +31,7 @@ module.exports = function(server) {
 
     socket.on("language", handleLanguage);
 
-    socket.on("leave", handleLeave);
+    // socket.on("leave", handleLeave);
 
     socket.on("chat-message", message => {
       console.log("socket: ", socket.id, " said: ", message);
@@ -40,10 +40,16 @@ module.exports = function(server) {
 
     // TODO: broadcast to room-only
     // for a real app, would be room-only (not broadcast)
-    socket.on("message", function(message) {
-      message.socket = socket.id;
+    socket.on("message", message => {
+      message.socketId = socket.id;
       console.log("socket: ", socket.id, " said: ", message);
       socket.broadcast.emit("message", message);
+    });
+
+    socket.on("private", (dest, message) => {
+      message.socketId = socket.id;
+      // console.log(socket.id, " -> ", dest, " message: ", message);
+      io.to(dest).emit("message", message);
     });
 
     socket.on("disconnect", function() {
