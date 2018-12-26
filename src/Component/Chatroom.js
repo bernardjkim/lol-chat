@@ -36,7 +36,7 @@ class Chatroom extends React.Component {
 
     if (prevState.chatroom !== this.state.chatroom) {
       // send join room msg to server
-      this.state.client.joinRoom(this.state.chatroomName);
+      this.state.client.joinRoom(this.state.chatroom);
     }
 
     if (prevState.username !== this.state.username) {
@@ -44,7 +44,6 @@ class Chatroom extends React.Component {
     }
 
     if (prevState.localStream !== this.state.localStream) {
-      // store local stream if successfully able to get media
       this.state.client.sendMessage({ type: "joined" });
     }
   }
@@ -96,9 +95,9 @@ class Chatroom extends React.Component {
     this.setState({ client });
 
     // attempt to get media access
-    getMedia(localStream => {
-      this.setState({ localStream });
-    });
+    // getMedia(localStream => {
+    //   this.setState({ localStream });
+    // });
   };
 
   render() {

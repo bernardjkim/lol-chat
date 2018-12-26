@@ -1,5 +1,4 @@
 const socketIO = require("socket.io");
-// const os = require("os");
 
 const makeHandlers = require("./handlers");
 const ClientManager = require("./clientManager");
@@ -11,53 +10,49 @@ const chatroomManager = ChatroomManager();
 module.exports = function(server) {
   const io = socketIO.listen(server);
 
-  io.on("connection", client => {
+  io.on("connection", socket => {
     const {
       handleRegister,
       handleJoin,
       handleLanguage,
       handleLeave,
       handleMessage,
-      handleGetChatrooms,
-      handleGetAvailableUsers,
       handleDisconnect
-    } = makeHandlers(client, clientManager, chatroomManager);
-    console.log("client connected: ", client.id);
+    } = makeHandlers(socket, clientManager, chatroomManager);
 
-    handleRegister("default");
+    // init: register client with username 'default' and join chatroom 'default'
+    console.log("socket connected: ", socket.id);
+    handleRegister();
+    handleJoin();
 
-    client.on("register", handleRegister);
+    socket.on("register", handleRegister);
 
-    client.on("join", handleJoin);
+    socket.on("join", handleJoin);
 
-    client.on("language", handleLanguage);
+    socket.on("language", handleLanguage);
 
-    client.on("leave", handleLeave);
+    socket.on("leave", handleLeave);
 
-    client.on("chat-message", function(message) {
-      console.log("Client: ", client.id, " said: ", message);
+    socket.on("chat-message", message => {
+      console.log("socket: ", socket.id, " said: ", message);
       handleMessage(message);
     });
 
-    client.on("chatrooms", handleGetChatrooms);
-
-    client.on("availableUsers", handleGetAvailableUsers);
-
     // TODO: broadcast to room-only
     // for a real app, would be room-only (not broadcast)
-    client.on("message", function(message) {
-      message.clientId = client.id;
-      console.log("Client: ", client.id, " said: ", message);
-      client.broadcast.emit("message", message);
+    socket.on("message", function(message) {
+      message.socket = socket.id;
+      console.log("socket: ", socket.id, " said: ", message);
+      socket.broadcast.emit("message", message);
     });
 
-    client.on("disconnect", function() {
-      console.log("client disconnect...", client.id);
+    socket.on("disconnect", function() {
+      console.log("socket disconnect...", socket.id);
       handleDisconnect();
     });
 
-    client.on("error", function(err) {
-      console.log("received error from client:", client.id);
+    socket.on("error", function(err) {
+      console.log("received error from socket:", socket.id);
       console.log(err);
     });
   });
