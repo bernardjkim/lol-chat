@@ -14,7 +14,7 @@ module.exports = function() {
 
   // remove client with id from all chatrooms
   function removeClient(id) {
-    chatrooms.forEach(c => c.removeUser(id));
+    chatrooms.forEach(c => c.removeClient(id));
   }
 
   function getChatroomByName(chatroomName) {

@@ -1,115 +1,109 @@
-module.exports = function(client, clientManager, chatroomManager) {
-  const handleEvent = makeHandleEvent(client, clientManager, chatroomManager);
-
-  function handleRegister(username, callback = () => {}) {
-    // TODO: allow duplicate usernames?
-    // if (!clientManager.isUserAvailable(username))
-    //   return callback("user is not available");
-
-    var user;
-    if (clientManager.clientExists(client.id)) {
-      user = clientManager.getClient(client.id);
-      user = { ...user, username };
+module.exports = function(socket, clientManager, chatroomManager) {
+  /**
+   * handleRegister will update the clients username or create a new client. The
+   * chatroom will broadcast an updated members list.
+   *
+   * @param {string}    username
+   * @param {function}  callback
+   */
+  function handleRegister(username = "default", callback = () => {}) {
+    var client = clientManager.getClient(socket.id);
+    // update username or create new client
+    if (client) {
+      client.username = username;
     } else {
-      user = { socket: client, username, room: "default", language: "en" };
+      client = { socket, username, language: "en" };
+      clientManager.addClient(socket.id, client);
     }
 
-    clientManager.setClient(client.id, user);
-
-    var chatroomName = user.room;
-    var chatroom = chatroomManager.getChatroomByName(chatroomName);
-    if (chatroom) {
-      chatroom.setUser(client.id, user);
-      chatroom.broadcastMembers();
+    // broardcast members
+    if (client.room) {
+      chatroomManager.getChatroomByName(client.room).broadcastMembers();
     }
-
-    handleMessage({
-      chatroomName,
-      msg: `${username} has joined the chatroom`
-    });
 
     return callback(null, username);
   }
 
-  function handleJoin(chatroomName, callback = () => {}) {
-    const createEntry = () => ({ event: `joined ${chatroomName}` });
-
-    var user = clientManager.getClient(client.id);
+  /**
+   * handleJoin will remove client from prvious chatroom and join the new
+   * chatroom provided. The chatroom will broadcast its updated members list.
+   *
+   * @param {string}    chatroomName
+   * @param {function}  callback
+   */
+  function handleJoin(chatroomName = "default", callback = () => {}) {
+    var client = clientManager.getClient(socket.id);
+    // leave previous chatroom
+    handleLeave(client.room);
 
     // create new room if room with chatroomName does not exist
     if (!chatroomManager.getChatroomByName(chatroomName)) {
       chatroomManager.createChatroom(chatroomName);
     }
 
-    handleEvent(chatroomName, createEntry)
-      .then(function(chatroom) {
-        // leave previous chatrooom
-        chatroomManager.removeClient(client.id);
+    var chatroom = chatroomManager.getChatroomByName(chatroomName);
+    // add client to chatroom and broadcast members
+    chatroom.addClient(socket.id, client);
+    chatroom.broadcastMembers();
+    client.room = chatroomName;
 
-        user = { ...user, room: chatroomName };
-        clientManager.set(client.id, user);
-
-        // add member to chatroom
-        chatroom.setUser(client.id, user);
-        chatroom.broadcastMembers();
-
-        // send chat history to client
-        callback(null, chatroom.getChatHistory());
-      })
-      .catch(callback);
-
-    handleMessage({
-      chatroomName,
-      msg: `${user.username} has joined the chatroom`
-    });
+    // send chat history to client
+    callback(null, chatroom.getChatHistory());
   }
 
+  /**
+   * handleLanguage will update the clients language preference
+   *
+   * @param {string}    language
+   * @param {function}  callback
+   */
   function handleLanguage(language, callback = () => {}) {
-    var user = clientManager.getClient(client.id);
-    user = { ...user, language };
-    clientManager.setClient(client.id, user);
-
-    var chatroom = chatroomManager.getChatroomByName(user.room);
-    chatroom.setUser(client.id, user);
+    clientManager.getClient(socket.id).language = language;
   }
 
+  /**
+   * handleLeave will remove the client from the specified chatroom and
+   * broadcast the updated client list to the chatroom.
+   *
+   * @param {string}    chatroomName
+   * @param {function}  callback
+   */
   function handleLeave(chatroomName, callback = () => {}) {
-    const createEntry = () => ({ event: `left ${chatroomName}` });
-
-    handleEvent(chatroomName, createEntry)
-      .then(function(chatroom) {
-        // remove member from chatroom
-        chatroom.removeUser(client.id);
-
-        callback(null);
-      })
-      .catch(callback);
+    var chatroom = chatroomManager.getChatroomByName(chatroomName);
+    if (chatroom) {
+      chatroom.removeClient(socket.id);
+      chatroom.broadcastMembers();
+    }
   }
 
+  /**
+   * handleMessage handles incoming messages and broadcasts the msg to clients
+   * in the specified chatroom.
+   *
+   * @param {object}    message   contains chatroom and msg text
+   * @param {function}  callback
+   */
   function handleMessage({ chatroomName, msg } = {}, callback = () => {}) {
-    const createEntry = () => ({
-      username: clientManager.getClient(client.id).username,
-      msg
-    });
+    var client = clientManager.getClient(socket.id);
+    var entry = { username: client.username, msg };
+    var chatroom = chatroomManager.getChatroomByName(chatroomName);
 
-    handleEvent(chatroomName, createEntry)
-      .then(() => {})
-      .catch(callback);
+    // append event to chat history
+    chatroom.addEntry(entry);
+
+    // notify other clients in chatroom
+    chatroom.broadcastMessage({ chat: chatroomName, ...entry });
   }
 
-  function handleGetChatrooms(_, callback = () => {}) {
-    return callback(null, chatroomManager.serializeChatrooms());
-  }
-
-  function handleGetAvailableUsers(_, callback = () => {}) {
-    return callback(null, clientManager.getAvailableUsers());
-  }
-
+  /**
+   * handleDisconnect will remove the client from the chatroom and remove user
+   * profile.
+   */
   function handleDisconnect() {
+    // remove from chatroom
+    handleLeave(clientManager.getClient(socket.id).room);
     // remove user profile
-    clientManager.removeClient(client.id);
-    // remove member from all chatrooms
-    chatroomManager.removeClient(client.id);
+    clientManager.removeClient(socket.id);
   }
 
   return {
@@ -118,55 +112,6 @@ module.exports = function(client, clientManager, chatroomManager) {
     handleLanguage,
     handleLeave,
     handleMessage,
-    handleGetChatrooms,
-    handleGetAvailableUsers,
     handleDisconnect
   };
 };
-
-function makeHandleEvent(client, clientManager, chatroomManager) {
-  function ensureExists(getter, rejectionMessage) {
-    return new Promise(function(resolve, reject) {
-      const res = getter();
-      return res ? resolve(res) : reject(rejectionMessage);
-    });
-  }
-
-  function ensureUserSelected(clientId) {
-    return ensureExists(
-      () => clientManager.getClient(clientId).username,
-      "select user first"
-    );
-  }
-
-  function ensureValidChatroom(chatroomName) {
-    return ensureExists(
-      () => chatroomManager.getChatroomByName(chatroomName),
-      `invalid chatroom name: ${chatroomName}`
-    );
-  }
-
-  function ensureValidChatroomAndUserSelected(chatroomName) {
-    return Promise.all([
-      ensureValidChatroom(chatroomName),
-      ensureUserSelected(client.id)
-    ]).then(([chatroom, user]) => Promise.resolve({ chatroom, user }));
-  }
-
-  function handleEvent(chatroomName, createEntry) {
-    return ensureValidChatroomAndUserSelected(chatroomName).then(function({
-      chatroom,
-      user
-    }) {
-      // append event to chat history
-      const entry = { user, ...createEntry() };
-      chatroom.addEntry(entry);
-
-      // notify other clients in chatroom
-      chatroom.broadcastMessage({ chat: chatroomName, ...entry });
-      return chatroom;
-    });
-  }
-
-  return handleEvent;
-}

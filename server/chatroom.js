@@ -38,12 +38,12 @@ module.exports = function(name) {
   }
 
   // add <id, client> mapping
-  function setUser(id, client) {
+  function addClient(id, client) {
     members.set(id, client);
   }
 
   // remove user by id
-  function removeUser(id) {
+  function removeClient(id) {
     members.delete(id);
   }
 
@@ -59,8 +59,8 @@ module.exports = function(name) {
     broadcastMembers,
     addEntry,
     getChatHistory,
-    setUser,
-    removeUser,
+    addClient,
+    removeClient,
     serialize
   };
 };

@@ -12,7 +12,7 @@ module.exports = function() {
   }*/
 
   // add client by socket id
-  function setClient(id, user) {
+  function addClient(id, user) {
     clients.set(id, user);
   }
 
@@ -31,16 +31,10 @@ module.exports = function() {
     return Array.from(clients.keys());
   }
 
-  // check if client with id exists
-  function clientExists(id) {
-    return !getClientList().some(client_id => client_id === id);
-  }
-
   return {
-    setClient,
+    addClient,
     getClient,
     removeClient,
-    getClientList,
-    clientExists
+    getClientList
   };
 };

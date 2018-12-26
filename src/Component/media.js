@@ -1,6 +1,6 @@
 const mediaStreamConstraints = {
   audio: true,
-  video: true
+  video: false
 };
 
 // attemp to get media devices, if successful pass local stream to cb function
