@@ -1,15 +1,25 @@
 .dd-wrapper {
+  display: flex;
+  align-items: center;
   height: 100%;
-  width: 100px;
-  background-color: #01e2ad;
+  width: 10%;
+  color: #ff77cb;
+}
+
+.dd-header {
+  width: 100%;
+}
+
+.dd-header-title {
+  border-right: solid 1px;
+  border-color: #d0caba;
 }
 
 .dd-wrapper ul {
-  background-color: #01e2ad;
   position: absolute;
   bottom: 45px;
   padding: 0;
-  width: 100px;
+  width: 100%;
 }
 .dd-wrapper ul li {
   position: relative;
