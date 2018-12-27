@@ -6,7 +6,6 @@ import UsernameForm from "./UsernameForm";
 import Dropdown from "./Dropdown";
 import AudioStream from "./AudioStream";
 import getMedia from "./media";
-import Variables from "./variable_utils";
 
 class Chatroom extends React.Component {
   constructor(props) {
@@ -106,17 +105,27 @@ class Chatroom extends React.Component {
           localStream={this.state.localStream}
         />
         <div id="container-left">
-          <h3 id="room-name">{this.state.chatroom}</h3>
-          <ul id="members-list">
-            {this.state.members.map((member, key) => (
-              <li key={key} className="member">
-                {member}
-              </li>
-            ))}
-          </ul>
+          <div id="room-name">
+            <p>{this.state.chatroom}</p>
+          </div>
+          <div id="members-list">
+            <ul>
+              {this.state.members.map((member, key) => (
+                <li key={key} className="member">
+                  {member}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div id="container-settings">
+            <p>Settings</p>
+          </div>
         </div>
 
         <div id="container-right">
+          <div id="title">
+            <p>LOL</p>
+          </div>
           <div id="container-messages">
             <ul id="message-list">
               {this.state.messages.map((msg, key) => (
@@ -132,7 +141,7 @@ class Chatroom extends React.Component {
             />
           </div>
           <div id="container-input">
-            <div id="language-selector">
+            <div id="container-inner">
               <Dropdown
                 id="language-selector"
                 title={this.state.language}
@@ -140,21 +149,23 @@ class Chatroom extends React.Component {
                   this.setState({ language: id });
                 }}
               />
+              <form id="form-message" onSubmit={this.handleSubmit}>
+                <input
+                  id="input-message"
+                  onChange={evt => {
+                    this.setState({ msg: evt.target.value });
+                  }}
+                  value={this.state.msg}
+                  autoComplete="off"
+                  autoFocus
+                />
+              </form>
             </div>
-            <form id="form-message" onSubmit={this.handleSubmit}>
-              <input
-                id="input-message"
-                onChange={evt => {
-                  this.setState({ msg: evt.target.value });
-                }}
-                value={this.state.msg}
-              />
-              <button id="submit-message">send</button>
-            </form>
           </div>
         </div>
         {!this.state.username && (
           <Modal
+            overlayClassName="modal-overlay"
             className="modal-username"
             isOpen={this.state.modalOpen}
             // style={Variables.modalStyle}
