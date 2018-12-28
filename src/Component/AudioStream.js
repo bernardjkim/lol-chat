@@ -1,5 +1,5 @@
 import React from "react";
-import Variables from "./variable_utils";
+import pcConfig from "./PeerConnectionConfig";
 
 class AudioStream extends React.Component {
   constructor(props) {
@@ -33,7 +33,7 @@ class AudioStream extends React.Component {
 
   createPeerConnection = socketId => {
     try {
-      var pc = new RTCPeerConnection(Variables.pcConfig);
+      var pc = new RTCPeerConnection(pcConfig);
       pc.onicecandidate = this.handleIceCandidate(socketId);
       pc.onaddstream = this.handleRemoteStreamAdded(socketId);
       pc.onremovestream = this.handleRemoteStreamRemoved(socketId);
