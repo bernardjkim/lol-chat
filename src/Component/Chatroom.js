@@ -5,7 +5,7 @@ import socket from "../socket";
 import UsernameForm from "./UsernameForm";
 import Dropdown from "./Dropdown";
 import AudioStream from "./AudioStream";
-import getMedia from "./media";
+import getMedia from "./Media";
 
 class Chatroom extends React.Component {
   constructor(props) {
